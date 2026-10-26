@@ -123,3 +123,15 @@ gdf.to_file("natura-data/natura2000_gr.gpkg", layer="sites", driver="GPKG")
 
 - Sources used: local `index.csv`, `index.html`, `info.xml`, `metadata.xml`; live geoportal WFS/WMS capabilities, `DescribeFeatureType` and attribute-only `GetFeature` (queried 2026-10-26).
 - Figures in §5 were computed from the service's attribute table; geometry-based figures (true union area, overlaps) were **not** computed because the geometries have not been downloaded.
+
+## 10. Progress log – steps 1 & 3 (done)
+
+- **Environment:** `.venv` + [requirements.txt](requirements.txt) (`python -m venv .venv`, then `.\.venv\Scripts\Activate.ps1`, `pip install -r requirements.txt`).
+- **Download:** `download_natura.py` -> `natura-data/natura2000_gr.gpkg` (446 valid MultiPolygons, EPSG:2100, areas match `shape_area`).
+- **Enrichment:** `enrich_natura.py` -> `natura-data/natura2000_gr_enriched.gpkg` / `.csv`.
+  - **Names** (`name_en`, `name_el`, `wikidata`) come from **Wikidata** (property P3425 "Natura 2000 site ID"), because the EEA end-user database could not be downloaded automatically (EEA ArcGIS service returned 502; SDF pages return 403; the tabular download sits behind a WebDAV share). All 446 sites match a Wikidata item, **30 have no label** (4 codes are ambiguous, flagged in `wikidata_ambiguous`). Wikidata also has 5 GR codes absent from the layer.
+  - **Regions** come from **geoBoundaries** (CC BY 4.0, 2016; `region_*` = ADM2, the 13 regions + Mount Athos; `decentr_admin_*` = ADM1, coarser grouping). Columns: `*_primary` (largest overlap), `*_all`, `*_count`, `land_share_pct`, `outside_land_boundary`.
+  - 28 sites span >1 region; 16 sites (offshore/small islets) do not intersect the coarse land boundary; median land share is 99%, mean 78% (many marine sites).
+  - Count reconciliation: 265 sites with an SCI designation (239 + 26 SCISPA) and 207 with an SPA designation (181 + 26) versus 244/202 in the metadata abstract - the layer is newer/larger than the abstract.
+- **Caveats:** geoBoundaries is a generalised 2016 boundary (coastline is coarse), so region assignment of coastal/island sites is approximate. For authoritative names, habitats and species, manually download the EEA *Natura 2000 (tabular) end 2024* CSVs (<https://www.eea.europa.eu/en/datahub/datahubitem-view/6fc8ad2d-195d-40f4-bdec-576e7d1268e4>) and join on `sitecode` (`SITECODE`).
+- Large/derived files (`*.gpkg`, `*.geojson`, `natura-data/boundaries/`) are git-ignored; rerun the scripts to regenerate.

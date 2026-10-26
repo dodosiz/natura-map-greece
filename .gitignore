@@ -1,0 +1,4 @@
+﻿.venv/
+__pycache__/
+# All downloaded/derived data - regenerate it by following README.md
+natura-data/

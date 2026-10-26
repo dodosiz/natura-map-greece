@@ -77,17 +77,21 @@ reg.round(1).to_csv(OUT / "region_coverage.csv", index=False, encoding="utf-8-si
 print("\nProtected land share per region:\n", reg.round(1).to_string(index=False))
 
 # Charts and maps
+colors = {"SCI": "#2b8cbe", "SPA": "#e6550d", "SCISPA": "#31a354"}
 fig, axes = plt.subplots(1, 2, figsize=(13, 5))
-sites.groupby("sitetype").area_km2.sum().plot.bar(ax=axes[0], color=["#2b8cbe", "#fdae6b", "#31a354"])
+by_type = sites.groupby("sitetype").area_km2.sum()[list(colors)]
+by_type.plot.bar(ax=axes[0], color=list(colors.values()))
 axes[0].set_title("Summed site area by type (km²) – overlaps double counted")
 axes[0].tick_params(axis="x", rotation=0)
-sites.area_km2.plot.hist(bins=[0, 1, 10, 50, 100, 500, 1000, 3000], ax=axes[1], color="#756bb1", log=True)
-axes[1].set_title("Site area distribution (km², log count)")
+size.drop(index="All", columns="All")[list(colors)].plot.bar(
+    stacked=True, ax=axes[1], color=list(colors.values()), legend=False)
+axes[1].set_title("Number of sites by size class (km²)")
+axes[1].set_xlabel("")
+axes[1].tick_params(axis="x", rotation=0)
 fig.tight_layout(); fig.savefig(OUT / "charts.png", dpi=130); plt.close(fig)
 
 fig, ax = plt.subplots(figsize=(9, 9))
 land.plot(ax=ax, color="#f0f0f0", edgecolor="#bbbbbb", linewidth=0.4)
-colors = {"SCI": "#2b8cbe", "SPA": "#e6550d", "SCISPA": "#31a354"}
 for t, c in colors.items():
     sites[sites.sitetype == t].plot(ax=ax, color=c, alpha=0.6, linewidth=0)
 ax.legend(handles=[Patch(color=c, alpha=0.6, label=t) for t, c in colors.items()], title="Site type")

@@ -60,3 +60,5 @@ Enriched extra columns: `area_km2`, `geom_valid`, `name_en`, `name_el`, `wikidat
 ## 6. Analysis
 
 `python analyze_natura.py` (needs the enriched file from step 2) writes tables and maps to `natura-data/analysis/`. Results are summarised in section 11 of [natura-data-report.md](natura-data-report.md).
+
+`python map_natura.py` builds the interactive map `natura-data/analysis/natura_map.html` (layers per site type, hover tooltips, region-coverage choropleth; needs the output of `analyze_natura.py`).

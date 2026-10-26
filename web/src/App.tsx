@@ -15,6 +15,7 @@ const TEXT: Record<Language, {
   regionCoverage: string;
   apiError: string;
   dataCredit: string;
+  dataModified: string;
   language: string;
 }> = {
   el: {
@@ -25,7 +26,8 @@ const TEXT: Record<Language, {
     land: "της χερσαίας έκτασης",
     regionCoverage: "Ποσοστό έκτασης Natura 2000 ανά περιφέρεια",
     apiError: "Σφάλμα API:",
-    dataCredit: "Δεδομένα: © Υπουργείο Περιβάλλοντος & Ενέργειας (ΥΠΕΝ), CC BY-SA 4.0",
+    dataCredit: "Πηγές δεδομένων:",
+    dataModified: "αναπροβολή, απλοποίηση και παράγωγα μεγέθη",
     language: "Γλώσσα",
   },
   en: {
@@ -36,7 +38,8 @@ const TEXT: Record<Language, {
     land: "of land",
     regionCoverage: "Natura 2000 area by region (%)",
     apiError: "API error:",
-    dataCredit: "Data: © Ministry of Environment & Energy (YPEN), CC BY-SA 4.0",
+    dataCredit: "Data sources:",
+    dataModified: "reprojected, simplified, derived measurements",
     language: "Language",
   },
 };
@@ -122,12 +125,23 @@ export default function App() {
             {text.regionCoverage}
           </label>
         </div>
-        <footer>{text.dataCredit}</footer>
+        <footer className="attribution">
+          {text.dataCredit}{" "}
+          ©{" "}
+          <a href="http://geoportal.ypen.gr/geonetwork/srv/eng/catalog.search#/metadata/c140c8d2-3820-4847-bfdc-1d6668d66325" target="_blank" rel="noopener noreferrer">
+            {language === "el" ? "Υπουργείο Περιβάλλοντος & Ενέργειας (ΥΠΕΝ)" : "Ministry of Environment & Energy (YPEN)"}
+          </a>{" "}
+          (<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>, {text.dataModified}) ·{" "}
+          <a href="https://www.wikidata.org/wiki/Property:P3425" target="_blank" rel="noopener noreferrer">Wikidata</a> (
+          <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener noreferrer">CC0</a>) ·{" "}
+          <a href="https://www.geoboundaries.org/" target="_blank" rel="noopener noreferrer">geoBoundaries</a> (
+          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>).
+        </footer>
       </aside>
 
       <MapContainer center={[39, 23.5]} zoom={6} className="map">
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (<a href="https://opendatacommons.org/licenses/odbl/1-0/">ODbL</a>)'
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {showRegions && regions && (

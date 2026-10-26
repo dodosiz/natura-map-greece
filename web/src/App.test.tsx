@@ -59,6 +59,17 @@ describe("App", () => {
     expect(screen.getByLabelText(/ΤΚΣ \(οικότοποι & είδη\)/)).toBeInTheDocument();
   });
 
+  it("shows linked data sources and licenses in the page attribution", () => {
+    render(<App />);
+    const attribution = screen.getByText(/Πηγές δεδομένων:/).closest("footer");
+    expect(attribution).toHaveTextContent("Υπουργείο Περιβάλλοντος & Ενέργειας (ΥΠΕΝ)");
+    expect(attribution).toHaveTextContent("Wikidata");
+    expect(attribution).toHaveTextContent("geoBoundaries");
+    expect(attribution).toHaveTextContent("αναπροβολή, απλοποίηση και παράγωγα μεγέθη");
+    expect(attribution?.querySelector('a[href="https://creativecommons.org/licenses/by-sa/4.0/"]')).toBeInTheDocument();
+    expect(attribution?.querySelector('a[href="https://creativecommons.org/licenses/by/4.0/"]')).toBeInTheDocument();
+  });
+
   it("filters sites when a type checkbox is toggled", async () => {
     render(<App />);
     await waitFor(() => expect(siteLayer()).toHaveAttribute("data-count", "3"));

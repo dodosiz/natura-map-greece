@@ -51,9 +51,9 @@ The Vite dev server proxies `/api` to `http://localhost:8000` (override with `VI
 
 | Data | Source | Notes |
 |---|---|---|
-| Site polygons (446) | YPEN geoportal WFS `http://geoportal.ypen.gr/geoserver/ows`, layer `ps:PS.ProtectedSitesNatura2000` | Licence CC BY-SA 4.0 (Ministry of Environment & Energy). Served in **EPSG:2100** (GGRS87), not ETRS89 as the metadata claims. The WFS advertised in the catalogue metadata (`/geoserver/ps_natura2000/ows`) is broken. Fields: `sitecode`, `sitetype` (SCI/SPA/SCISPA), `objectid`, `shape_leng`, `shape_area`. |
-| Site names | Wikidata SPARQL, property P3425 (Natura 2000 site ID) | The geoportal has no names. 416 of 446 sites have a name; 4 codes map to several items (the labelled one with the lowest Q-id is kept, `wikidata_ambiguous = 1`). |
-| Regions | geoBoundaries `gbOpen/GRC/ADM2` (CC BY 4.0) | 13 regions + Agion Oros. A coarse 2016 boundary, so land/sea splits are approximate. |
+| Site polygons (446) | [YPEN geoportal WFS](http://geoportal.ypen.gr/geoserver/ows), layer `ps:PS.ProtectedSitesNatura2000` | Ministry of Environment & Energy data, CC BY-SA 4.0. Served in **EPSG:2100** (GGRS87), not ETRS89 as the metadata claims. The WFS advertised in the catalogue metadata (`/geoserver/ps_natura2000/ows`) is broken. Fields: `sitecode`, `sitetype` (SCI/SPA/SCISPA), `objectid`, `shape_leng`, `shape_area`. |
+| Site names | [Wikidata](https://www.wikidata.org/wiki/Property:P3425) SPARQL, property P3425 (Natura 2000 site ID) | Structured data is dedicated to the public domain under CC0. The geoportal has no names. 416 of 446 sites have a name; 4 codes map to several items (the labelled one with the lowest Q-id is kept, `wikidata_ambiguous = 1`). |
+| Regions | [geoBoundaries](https://www.geoboundaries.org/) `gbOpen/GRC/ADM2` (CC BY 4.0) | 13 regions + Agion Oros. A coarse 2016 boundary, so land/sea splits are approximate. geoBoundaries requests prominent credit and a link on web products. |
 
 Catalogue record: `http://geoportal.ypen.gr/geonetwork/srv/eng/catalog.search#/metadata/c140c8d2-3820-4847-bfdc-1d6668d66325` (an AngularJS app; fetch it via CSW `GetRecordById` instead).
 
@@ -107,6 +107,13 @@ Configuration: the API base URL is `/api` (proxied in dev). For a separate host 
 
 `npm run build` type-checks and builds to `web/dist` (serve with any static server; `npm run preview` to try it, which needs `VITE_API_URL` pointing to the API).
 
-## Attribution
+## Data attribution and licensing
 
-Site data © Ministry of Environment and Energy (ΥΠΕΝ), CC BY-SA 4.0. Names from Wikidata (CC0). Regions from geoBoundaries (CC BY 4.0). Base map © OpenStreetMap contributors.
+The site and API display data from several sources; each source retains its own license:
+
+- Natura 2000 site polygons: © Ministry of Environment and Energy (ΥΠΕΝ), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The project reprojects and simplifies geometries and computes areas, perimeters, and coverage statistics from them. Those adaptations must be credited as modified; the source license applies to adaptations of this dataset.
+- Site labels: [Wikidata property P3425](https://www.wikidata.org/wiki/Property:P3425); structured data is available under [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
+- Administrative boundaries: [geoBoundaries](https://www.geoboundaries.org/), CC BY 4.0. Its web-use guidance asks for prominent linked credit.
+- Base map tiles: © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), [ODbL](https://opendatacommons.org/licenses/odbl/1-0/). The site uses the standard OSM tile service; follow its [tile usage policy](https://operations.osmfoundation.org/policies/tiles/).
+
+These are data credits, not a blanket license for the website's code or for data from other sources. The map is for orientation only; check official boundaries and decisions with the competent Greek authorities.

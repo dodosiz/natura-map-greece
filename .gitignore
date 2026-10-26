@@ -1,4 +1,12 @@
 ﻿.venv/
 __pycache__/
-# All downloaded/derived data - regenerate it by following README.md
-natura-data/
+*.pyc
+.pytest_cache/
+node_modules/
+dist/
+# Local data: database + raw downloads (regenerate with the ETL)
+data/
+*.db
+*.db-wal
+*.db-shm
+.env

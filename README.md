@@ -56,3 +56,7 @@ Enriched extra columns: `area_km2`, `geom_valid`, `name_en`, `name_el`, `wikidat
 - Windows PowerShell mangles UTF-8 output; use `PYTHONIOENCODING=utf-8`, and read `index.csv`/`info.xml` as UTF-8.
 - Metadata abstract says 244 SCI + 202 SPA; the layer has 265 SCI-designated (239+26) and 207 SPA-designated (181+26) sites.
 - Other related YPEN WFS layers (same endpoint): `ps:PS.NationallyDesignatedAreasCDDA`, `hb:HB.HabitatsDistrGrid`, `sd:SD.BirdsDistrGrid`, `hb:HB.HabitatsRangeGrid`, `sd:SD.BirdsRangeGrid`, flood/SEVESO/wastewater layers (list via `GetCapabilities`).
+
+## 6. Analysis
+
+`python analyze_natura.py` (needs the enriched file from step 2) writes tables and maps to `natura-data/analysis/`. Results are summarised in section 11 of [natura-data-report.md](natura-data-report.md).

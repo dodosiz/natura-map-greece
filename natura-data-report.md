@@ -135,3 +135,31 @@ gdf.to_file("natura-data/natura2000_gr.gpkg", layer="sites", driver="GPKG")
   - Count reconciliation: 265 sites with an SCI designation (239 + 26 SCISPA) and 207 with an SPA designation (181 + 26) versus 244/202 in the metadata abstract - the layer is newer/larger than the abstract.
 - **Caveats:** geoBoundaries is a generalised 2016 boundary (coastline is coarse), so region assignment of coastal/island sites is approximate. For authoritative names, habitats and species, manually download the EEA *Natura 2000 (tabular) end 2024* CSVs (<https://www.eea.europa.eu/en/datahub/datahubitem-view/6fc8ad2d-195d-40f4-bdec-576e7d1268e4>) and join on `sitecode` (`SITECODE`).
 - Large/derived files (`*.gpkg`, `*.geojson`, `natura-data/boundaries/`) are git-ignored; rerun the scripts to regenerate.
+
+## 11. First analysis results (`analyze_natura.py` -> `natura-data/analysis/`)
+
+Land reference = geoBoundaries ADM1 (131,792 km², coarse coastline, so land/sea splits are approximate). Marine area is **not** compared with an EEZ.
+
+**Coverage (dissolved, overlaps removed)**
+
+| | Total km² | On land km² | Offshore/outside km² | % of Greek land |
+|---|---|---|---|---|
+| Natura 2000 (union) | 58,773 | 36,086 | 22,687 | **27.4%** |
+| SCI (incl. SCISPA) | 39,437 | 22,055 | 17,381 | 16.7% |
+| SPA (incl. SCISPA) | 38,521 | 27,820 | 10,700 | 21.1% |
+| SCI ∩ SPA | 19,184 | 13,790 | 5,395 | 10.5% |
+
+- Summing the 446 site areas gives 72,524 km², **23% more** than the true union (58,773 km²).
+- Roughly 38% of the network's area is offshore (marine sites).
+
+**Site sizes:** median 85 km², mean 163 km². 7 sites are >1,000 km²; the top 10% of sites hold 44% of the summed area. Largest: GR1430004 (Alonnisos - N. Sporades marine park, 2,492 km²), GR2530007 (2,366 km², 0.6% land), GR4340024 (1,637 km², 0.1% land) - all essentially marine.
+
+**Character:** 276 terrestrial (>90% land), 103 mixed, 67 mostly marine (<10% land).
+
+**Protected land share by region (dissolved):** Agion Oros 99.8%, N. Aegean 40%, S. Aegean 36%, Thessaly 36%, Epirus 35%, E. Macedonia-Thrace 33%, Central Macedonia 33%, Crete 32%, Peloponnese 19.5%, Sterea Ellada 19%, W. Greece 18%, Ionian 16%, W. Macedonia 16%, Attica 11.5%.
+
+**Maps/charts:** `map_sites.png`, `map_region_coverage.png`, `charts.png`; tables `coverage.csv`, `size_classes.csv`, `top10_largest.csv`, `land_sea_character.csv`, `region_coverage.csv`.
+
+**Caveats:** names for 30 sites are missing (the biggest marine sites among them); region shares depend on the 2016 generalised boundaries; the ~27% land coverage is in line with commonly cited ~27-28% figures but should be re-checked with an official coastline.
+
+**Suggested next steps:** add the EEA tabular data (habitats, species, site names), overlay CORINE land cover / burnt areas / renewable-energy permits to measure pressures, and compute the EEZ share for marine coverage.

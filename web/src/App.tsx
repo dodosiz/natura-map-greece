@@ -1,6 +1,7 @@
 import type { FeatureCollection, Geometry } from "geojson";
-import { useEffect, useMemo, useState } from "react";
-import { GeoJSON, MapContainer, TileLayer } from "react-leaflet";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { CircleMarker, GeoJSON, MapContainer, TileLayer, useMap } from "react-leaflet";
+import { featuresAt } from "./geo";
 import { api, type Language, type RegionProps, siteName, type SiteProps, type SiteType, type Stats } from "./api";
 import InfoButton from "./InfoButton";
 
@@ -18,6 +19,16 @@ const TEXT: Record<Language, {
   dataModified: string;
   language: string;
   lastSync: string;
+  locate: string;
+  stopLocate: string;
+  locating: string;
+  inside: string;
+  outside: string;
+  unknown: string;
+  denied: string;
+  unavailable: string;
+  privacy: string;
+  yourPosition: string;
 }> = {
   el: {
     title: "Natura 2000 – Ελλάδα",
@@ -31,6 +42,16 @@ const TEXT: Record<Language, {
     dataModified: "αναπροβολή, απλοποίηση και παράγωγα μεγέθη",
     language: "Γλώσσα",
     lastSync: "Τελευταίος συγχρονισμός δεδομένων:",
+    locate: "Πού βρίσκομαι;",
+    stopLocate: "Διακοπή εντοπισμού",
+    locating: "Εντοπισμός θέσης…",
+    inside: "Βρίσκεστε σε περιοχή Natura 2000",
+    outside: "Δεν βρίσκεστε σε περιοχή Natura 2000",
+    unknown: "Δεν υπάρχουν δεδομένα τρέχουσας θέσης",
+    denied: "Η πρόσβαση στην τοποθεσία απορρίφθηκε.",
+    unavailable: "Η θέση δεν είναι διαθέσιμη.",
+    privacy: "Η θέση σας επεξεργάζεται μόνο στο πρόγραμμα περιήγησής σας· δεν αποστέλλεται ούτε αποθηκεύεται. Ο έλεγχος είναι κατά προσέγγιση (απλοποιημένα όρια) και δεν έχει νομική ισχύ.",
+    yourPosition: "Η θέση σας",
   },
   en: {
     title: "Natura 2000 – Greece",
@@ -44,8 +65,32 @@ const TEXT: Record<Language, {
     dataModified: "reprojected, simplified, derived measurements",
     language: "Language",
     lastSync: "Data last synced:",
+    locate: "Where am I?",
+    stopLocate: "Stop locating",
+    locating: "Locating…",
+    inside: "You are in a Natura 2000 area",
+    outside: "You are not in a Natura 2000 area",
+    unknown: "No current location data available",
+    denied: "Location permission was denied.",
+    unavailable: "Your position is unavailable.",
+    privacy: "Your location is processed only in your browser; it is never sent or stored. The check is approximate (simplified boundaries) and has no legal force.",
+    yourPosition: "Your position",
   },
 };
+type Position = { lat: number; lon: number; accuracy: number };
+type LocStatus = "idle" | "locating" | "active" | "denied" | "unavailable";
+
+function FlyTo({ pos }: { pos: Position | null }) {
+  const map = useMap();
+  const lat = pos?.lat;
+  const lon = pos?.lon;
+  useEffect(() => {
+    if (lat !== undefined && lon !== undefined) map.flyTo([lat, lon], Math.max(map.getZoom(), 10));
+    // Only recentre when the first fix arrives or the user re-requests; not on every update.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, lat === undefined]);
+  return null;
+}
 const LOCALE: Record<Language, string> = { el: "el-GR", en: "en-US" };
 const fmt = (n: number, language: Language, d = 0) =>
   n.toLocaleString(LOCALE[language], { maximumFractionDigits: d });
@@ -63,7 +108,54 @@ export default function App() {
   const [visible, setVisible] = useState<Record<SiteType, boolean>>({ SCI: true, SPA: true, SCISPA: true });
   const [showRegions, setShowRegions] = useState(false);
   const text = TEXT[language];
+  const [locStatus, setLocStatus] = useState<LocStatus>("idle");
+  const [pos, setPos] = useState<Position | null>(null);
+  const watchId = useRef<number | null>(null);
 
+  const stopLocating = () => {
+    if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current);
+    watchId.current = null;
+    setPos(null);
+    setLocStatus("idle");
+  };
+  const startLocating = () => {
+    if (!("geolocation" in navigator)) {
+      setLocStatus("unavailable");
+      return;
+    }
+    setLocStatus("locating");
+    watchId.current = navigator.geolocation.watchPosition(
+      (p) => {
+        setPos({ lat: p.coords.latitude, lon: p.coords.longitude, accuracy: p.coords.accuracy });
+        setLocStatus("active");
+      },
+      (err) => {
+        setPos(null);
+        if (err.code === err.PERMISSION_DENIED) {
+          if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current);
+          watchId.current = null;
+          setLocStatus("denied");
+        } else {
+          setLocStatus("unavailable");
+        }
+      },
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 },
+    );
+  };
+  useEffect(() => () => {
+    if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current);
+  }, []);
+
+  const inNatura = useMemo(
+    () => (pos && sites ? featuresAt(sites.features, pos.lon, pos.lat).length > 0 : null),
+    [pos, sites],
+  );
+  const natura =
+    inNatura === null
+      ? { cls: "unknown", icon: "⚪", label: text.unknown }
+      : inNatura
+        ? { cls: "inside", icon: "🟢", label: text.inside }
+        : { cls: "outside", icon: "🔴", label: text.outside };
   useEffect(() => {
     document.documentElement.lang = language;
     document.title = text.title;
@@ -120,6 +212,18 @@ export default function App() {
             </time>
           </div>
         )}
+
+        <div className="locator">
+          <button type="button" onClick={locStatus === "idle" || locStatus === "denied" || locStatus === "unavailable" ? startLocating : stopLocating}>
+            {locStatus === "idle" || locStatus === "denied" || locStatus === "unavailable" ? text.locate : text.stopLocate}
+          </button>
+          <div className={`natura-status ${natura.cls}`} role="status">
+            <span aria-hidden="true">{natura.icon}</span> {locStatus === "locating" ? text.locating : natura.label}
+          </div>
+          {locStatus === "denied" && <div className="loc-note">{text.denied}</div>}
+          {locStatus === "unavailable" && <div className="loc-note">{text.unavailable}</div>}
+          <div className="loc-note">{text.privacy}</div>
+        </div>
 
         <div className="types">
           {TYPES.map((t) => (
@@ -189,6 +293,14 @@ export default function App() {
             );
           }}
         />
+        <FlyTo pos={pos} />
+        {pos && (
+          <CircleMarker
+            center={[pos.lat, pos.lon]}
+            radius={8}
+            pathOptions={{ color: "#fff", weight: 2, fillColor: "#1a73e8", fillOpacity: 1 }}
+          />
+        )}
       </MapContainer>
     </div>
   );

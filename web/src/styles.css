@@ -26,6 +26,10 @@ html, body, #root { height: 100%; margin: 0; font-family: system-ui, sans-serif;
 footer { font-size: 11px; color: #666; line-height: 1.45; }
 .attribution a { color: #315f78; }
 .title { display: flex; align-items: center; gap: 8px; }
+.locator { display: flex; flex-direction: column; gap: 4px; }
+.locator button { padding: 6px; cursor: pointer; }
+.natura-status { font-weight: 600; }
+.loc-note { font-size: 11px; color: #666; line-height: 1.4; }
 .language-select { display: flex; align-items: center; gap: 8px; }
 .language-select select { width: auto; }
 .info-btn { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #2b8cbe; background: #fff; color: #2b8cbe; font: italic bold 14px serif; cursor: pointer; padding: 0; flex: none; }

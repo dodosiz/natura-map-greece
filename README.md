@@ -102,10 +102,15 @@ React + TypeScript + Vite, map with Leaflet via `react-leaflet`.
 - Header with network totals from `/api/stats`
 - Checkboxes for SCI, SPA, SCI + SPA and an optional choropleth of the protected share per region
 - An **info (i) button** next to the title explaining Natura 2000, SCI, SPA and what they mean for construction and other activities (text in `src/InfoButton.tsx`; sources: European Commission Natura 2000, Habitats and Birds Directive pages)
+- A **"Where am I?" button** that asks the browser for permission to use the visitor's location (Geolocation API, only after the click). With permission, the position is shown on the map and a status line shows 🟢 in a Natura 2000 area, 🔴 not in one, or ⚪ no current location data (before consent, if denied, or unavailable). The point-in-polygon check (`src/geo.ts`) uses the simplified site geometries, so it is approximate near borders and has no legal force.
 
 Configuration: the API base URL is `/api` (proxied in dev). For a separate host set `VITE_API_URL=https://host/api` at build time and add the frontend origin to `CORS_ORIGINS`.
 
 `npm run build` type-checks and builds to `web/dist` (serve with any static server; `npm run preview` to try it, which needs `VITE_API_URL` pointing to the API).
+
+## Privacy (GDPR / ePrivacy)
+
+Location is personal data. The location feature is opt-in: nothing is requested until the visitor clicks "Where am I?" and grants the browser permission, which can be withdrawn at any time (stop button or browser settings). The position is processed only in the browser to compare it with the already downloaded site polygons; it is **not** sent to the API or any server, logged, stored, or put in cookies/localStorage. The UI states this next to the button. Note that map tiles are requested from OpenStreetMap when the map pans to the position, which exposes the viewed tile area (not the exact coordinates) and the visitor's IP address to that service. If you add analytics, logging of coordinates, or server-side location processing, update this section and obtain a legal basis and a privacy notice. Geolocation requires a secure context (HTTPS, or localhost).
 
 ## Data attribution and licensing
 

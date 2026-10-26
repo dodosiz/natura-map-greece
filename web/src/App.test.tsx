@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { useState } from "react";
@@ -11,13 +11,15 @@ vi.mock("react-leaflet", () => ({
     const [mounted] = useState(data);
     return <div data-testid="geojson" data-count={mounted.features.length} />;
   },
+  CircleMarker: ({ center }: any) => <div data-testid="marker" data-center={center.join(",")} />,
+  useMap: () => ({ flyTo: vi.fn(), getZoom: () => 6 }),
 }));
 
 vi.mock("./api", async (orig) => {
   const actual = await orig<typeof import("./api")>();
   const site = (code: string, sitetype: string) => ({
     type: "Feature",
-    geometry: { type: "Point", coordinates: [0, 0] },
+    geometry: { type: "Polygon", coordinates: [[[-1, -1], [1, -1], [1, 1], [-1, 1], [-1, -1]]] },
     properties: { sitecode: code, sitetype },
   });
   return {
@@ -83,6 +85,37 @@ describe("App", () => {
     expect(screen.getAllByTestId("geojson")).toHaveLength(1);
     fireEvent.click(screen.getByLabelText(/Ποσοστό έκτασης Natura 2000 ανά περιφέρεια/));
     expect(screen.getAllByTestId("geojson")).toHaveLength(2);
+  });
+
+  it("shows unknown status before location is shared and reports inside/outside after", async () => {
+    let success: PositionCallback = () => {};
+    let failure: PositionErrorCallback = () => {};
+    const watchPosition = vi.fn((s: PositionCallback, f: PositionErrorCallback) => {
+      success = s;
+      failure = f;
+      return 1;
+    });
+    const clearWatch = vi.fn();
+    Object.defineProperty(navigator, "geolocation", { value: { watchPosition, clearWatch }, configurable: true });
+    const fix = (latitude: number, longitude: number) => ({ coords: { latitude, longitude, accuracy: 5 } }) as GeolocationPosition;
+
+    render(<App />);
+    await waitFor(() => expect(siteLayer()).toHaveAttribute("data-count", "3"));
+    expect(screen.getByRole("status")).toHaveTextContent("Δεν υπάρχουν δεδομένα τρέχουσας θέσης");
+    expect(watchPosition).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Πού βρίσκομαι;" }));
+    expect(watchPosition).toHaveBeenCalledTimes(1);
+    act(() => success(fix(0, 0)));
+    expect(screen.getByRole("status")).toHaveTextContent("Βρίσκεστε σε περιοχή Natura 2000");
+    expect(screen.getByTestId("marker")).toHaveAttribute("data-center", "0,0");
+    act(() => success(fix(30, 30)));
+    expect(screen.getByRole("status")).toHaveTextContent("Δεν βρίσκεστε σε περιοχή Natura 2000");
+
+    act(() => failure({ code: 1, PERMISSION_DENIED: 1 } as GeolocationPositionError));
+    expect(screen.getByRole("status")).toHaveTextContent("Δεν υπάρχουν δεδομένα τρέχουσας θέσης");
+    expect(screen.getByText("Η πρόσβαση στην τοποθεσία απορρίφθηκε.")).toBeInTheDocument();
+    expect(screen.queryByTestId("marker")).toBeNull();
   });
 
   it("switches the interface to English", async () => {

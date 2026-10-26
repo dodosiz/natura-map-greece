@@ -1,4 +1,4 @@
-import type { Feature, FeatureCollection, Geometry } from "geojson";
+﻿import type { FeatureCollection, Geometry } from "geojson";
 
 const BASE = import.meta.env.VITE_API_URL ?? "/api";
 
@@ -14,12 +14,6 @@ export interface SiteProps {
   region_primary: string | null;
   centroid_lon: number;
   centroid_lat: number;
-}
-
-export interface SiteDetail extends SiteProps {
-  wikidata: string | null;
-  perimeter_km: number | null;
-  regions: { region: string; overlap_km2: number }[];
 }
 
 export interface RegionProps {
@@ -47,8 +41,8 @@ export const api = {
   sitesGeoJSON: () => get<FeatureCollection<Geometry, SiteProps>>("/sites/geojson"),
   regions: () => get<FeatureCollection<Geometry, RegionProps>>("/regions"),
   stats: () => get<Stats>("/stats"),
-  site: (code: string) => get<Feature<Geometry, SiteDetail>>(`/sites/${code}`),
 };
 
 export const siteName = (p: Pick<SiteProps, "name_en" | "name_el" | "sitecode">) =>
   p.name_en ?? p.name_el ?? p.sitecode;
+

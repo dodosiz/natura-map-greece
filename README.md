@@ -86,14 +86,11 @@ Environment: `NATURA_DB_PATH`, `CORS_ORIGINS` (comma separated, default `http://
 
 | Endpoint | Description |
 |---|---|
-| `GET /api/health` | `{status, sites}` |
-| `GET /api/sites` | Paged list, no geometry. Filters: `type` (repeatable: SCI, SPA, SCISPA), `region`, `q` (code/name search), `min_area`, `max_area` (km²), `bbox=west,south,east,north`. Paging/sorting: `limit` (1–1000, default 100), `offset`, `sort` (name/area/code), `order`. Returns `{total, limit, offset, items}` |
-| `GET /api/sites/geojson` | FeatureCollection with **simplified** geometries; same filters as `/api/sites`. Used by the map |
-| `GET /api/sites/{code}` | One Feature with properties (incl. `regions` and overlap area). `?geometry=full` (default) `simplified` `none`. 404 if unknown |
+| `GET /api/sites/geojson` | All sites as a FeatureCollection with **simplified** geometries and properties (`sitecode`, `sitetype`, names, `area_km2`, `land_share_pct`, `region_primary`) |
 | `GET /api/regions` | Region FeatureCollection with `area_km2`, `protected_km2`, `protected_pct`, `n_sites` |
 | `GET /api/stats` | Counts and areas by type, network coverage numbers, last ETL run |
 
-Example: `curl "http://localhost:8000/api/sites?type=SPA&region=Kritis&sort=area&order=desc&limit=5"`
+These are exactly the endpoints the frontend uses. Example: `curl http://localhost:8000/api/stats`
 
 Tests: `cd api; pytest` (uses a temporary fixture DB built from the ETL schema).
 
@@ -102,10 +99,9 @@ Tests: `cd api; pytest` (uses a temporary fixture DB built from the ETL schema).
 React + TypeScript + Vite, map with Leaflet via `react-leaflet`.
 
 - Map of all sites coloured by type (SCI blue, SPA orange, SCISPA green), with hover tooltips
-- Type toggles, name/code search, region filter, sortable site list
-- Click a site (map or list): fetches full geometry from the API, highlights and zooms to it, shows details
-- Optional choropleth of the protected share per region
 - Header with network totals from `/api/stats`
+- Checkboxes for SCI, SPA, SCI + SPA and an optional choropleth of the protected share per region
+- An **info (i) button** next to the title explaining Natura 2000, SCI, SPA and what they mean for construction and other activities (text in `src/InfoButton.tsx`; sources: European Commission Natura 2000, Habitats and Birds Directive pages)
 
 Configuration: the API base URL is `/api` (proxied in dev). For a separate host set `VITE_API_URL=https://host/api` at build time and add the frontend origin to `CORS_ORIGINS`.
 

@@ -17,6 +17,7 @@ const TEXT: Record<Language, {
   dataCredit: string;
   dataModified: string;
   language: string;
+  lastSync: string;
 }> = {
   el: {
     title: "Natura 2000 – Ελλάδα",
@@ -29,6 +30,7 @@ const TEXT: Record<Language, {
     dataCredit: "Πηγές δεδομένων:",
     dataModified: "αναπροβολή, απλοποίηση και παράγωγα μεγέθη",
     language: "Γλώσσα",
+    lastSync: "Τελευταίος συγχρονισμός δεδομένων:",
   },
   en: {
     title: "Natura 2000 – Greece",
@@ -41,6 +43,7 @@ const TEXT: Record<Language, {
     dataCredit: "Data sources:",
     dataModified: "reprojected, simplified, derived measurements",
     language: "Language",
+    lastSync: "Data last synced:",
   },
 };
 const LOCALE: Record<Language, string> = { el: "el-GR", en: "en-US" };
@@ -84,6 +87,8 @@ export default function App() {
     [sites, visible],
   );
   const cov = stats?.coverage;
+  const syncDate = stats?.last_etl_run ? new Date(stats.last_etl_run.finished_at) : null;
+  const lastSync = syncDate && !isNaN(syncDate.getTime()) ? syncDate : null;
 
   return (
     <div className="app">
@@ -105,6 +110,14 @@ export default function App() {
             <div><b>{fmt(stats.total_sites, language)}</b> {text.sites}</div>
             <div><b>{fmt(cov.network_km2, language)}</b> km² {text.network}</div>
             <div><b>{fmt(cov.network_land_pct, language, 1)}%</b> {text.land}</div>
+          </div>
+        )}
+        {lastSync && (
+          <div className="last-sync">
+            {text.lastSync}{" "}
+            <time dateTime={lastSync.toISOString()}>
+              {lastSync.toLocaleDateString(LOCALE[language], { year: "numeric", month: "long", day: "numeric" })}
+            </time>
           </div>
         )}
 

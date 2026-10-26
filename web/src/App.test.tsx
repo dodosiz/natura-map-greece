@@ -12,6 +12,7 @@ vi.mock("react-leaflet", () => ({
     return <div data-testid="geojson" data-count={mounted.features.length} />;
   },
   CircleMarker: ({ center }: any) => <div data-testid="marker" data-center={center.join(",")} />,
+  useMapEvents: () => null,
   useMap: () => ({ flyTo: vi.fn(), getZoom: () => 6 }),
 }));
 
@@ -56,8 +57,8 @@ describe("App", () => {
     render(<App />);
     await waitFor(() => expect(siteLayer()).toHaveAttribute("data-count", "3"));
     expect(screen.getByText("3")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Natura 2000 – Ελλάδα" })).toBeInTheDocument();
-    expect(screen.getByLabelText("Γλώσσα")).toHaveValue("el");
+    expect(screen.getByRole("heading", { name: "Χάρτης Natura Ελλάδα" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ΕΛ" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByLabelText(/ΤΚΣ \(οικότοποι & είδη\)/)).toBeInTheDocument();
   });
 
@@ -122,9 +123,9 @@ describe("App", () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: "Τι σημαίνουν αυτοί οι όροι;" }));
     expect(screen.getByRole("dialog")).toHaveTextContent("Κατανόηση του χάρτη");
-    fireEvent.change(screen.getByLabelText("Γλώσσα"), { target: { value: "en" } });
-    expect(await screen.findByRole("heading", { name: "Natura 2000 – Greece" })).toBeInTheDocument();
-    expect(screen.getByLabelText("Language")).toHaveValue("en");
+    fireEvent.click(screen.getByRole("button", { name: "EN" }));
+    expect(await screen.findByRole("heading", { name: "Natura Map Greece" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "EN" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByLabelText(/SCI \(habitats & species\)/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Natura 2000 area by region/)).toBeInTheDocument();
     expect(document.documentElement.lang).toBe("en");

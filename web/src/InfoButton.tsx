@@ -34,7 +34,7 @@ const CONTENT: Record<Language, {
       {
         type: "SCI",
         title: "SCI – Site of Community Importance",
-        color: "#2b8cbe",
+        color: "#2563eb",
         paragraphs: [
           "Identified under the Habitats Directive to protect natural habitat types of European importance (such as forests, wetlands, grasslands, and coastal and marine habitats) and species of European importance other than birds (such as bats, otters, turtles and plants). After the European Commission adopts a site as an SCI, the Member State must designate it as a Special Area of Conservation (SAC) within six years and establish the necessary conservation measures.",
         ],
@@ -42,7 +42,7 @@ const CONTENT: Record<Language, {
       {
         type: "SPA",
         title: "SPA – Special Protection Area",
-        color: "#e6550d",
+        color: "#d97706",
         paragraphs: [
           "Designated under the Birds Directive for wild bird species listed in its Annex I and regularly occurring migratory species, and for the habitats they need to breed, feed, rest and overwinter (such as wetlands, cliffs, forests and marine areas).",
         ],
@@ -50,7 +50,7 @@ const CONTENT: Record<Language, {
       {
         type: "SCISPA",
         title: "SCI + SPA",
-        color: "#31a354",
+        color: "#059669",
         paragraphs: ["Areas designated under both directives: as an SCI for habitats and other species, and as an SPA for birds."],
       },
     ],
@@ -82,7 +82,7 @@ const CONTENT: Record<Language, {
       {
         type: "SCI",
         title: "ΤΚΣ – Τόπος Κοινοτικής Σημασίας",
-        color: "#2b8cbe",
+        color: "#2563eb",
         paragraphs: [
           "Οι ΤΚΣ προσδιορίζονται βάσει της Οδηγίας για τους Οικοτόπους για την προστασία φυσικών τύπων οικοτόπων κοινοτικής σημασίας (όπως δάση, υγρότοποι, λιβάδια και παράκτιοι και θαλάσσιοι οικότοποι) και ειδών κοινοτικής σημασίας, πλην των πτηνών (όπως νυχτερίδες, ενυδρίδες, χελώνες και φυτά). Μετά την έγκριση ενός τόπου ως ΤΚΣ από την Ευρωπαϊκή Επιτροπή, το κράτος μέλος οφείλει, μέσα σε έξι χρόνια, να τον χαρακτηρίσει ως Ειδική Ζώνη Διατήρησης (ΕΖΔ) και να θεσπίσει τα αναγκαία μέτρα διατήρησης.",
         ],
@@ -90,7 +90,7 @@ const CONTENT: Record<Language, {
       {
         type: "SPA",
         title: "ΖΕΠ – Ζώνη Ειδικής Προστασίας",
-        color: "#e6550d",
+        color: "#d97706",
         paragraphs: [
           "Οι ΖΕΠ ορίζονται βάσει της Οδηγίας για τα Πτηνά για είδη άγριων πτηνών που περιλαμβάνονται στο Παράρτημα I της, καθώς και για τακτικά μεταναστευτικά είδη και τους οικοτόπους τους. Οι περιοχές αυτές καλύπτουν ανάγκες όπως η αναπαραγωγή, η αναζήτηση τροφής, η ανάπαυση και η διαχείμαση (π.χ. υγρότοποι, απόκρημνες ακτές, δάση και θαλάσσιες περιοχές).",
         ],
@@ -98,7 +98,7 @@ const CONTENT: Record<Language, {
       {
         type: "SCISPA",
         title: "ΤΚΣ + ΖΕΠ",
-        color: "#31a354",
+        color: "#059669",
         paragraphs: ["Περιοχές που έχουν χαρακτηριστεί τόσο ως ΤΚΣ, για οικοτόπους και άλλα είδη, όσο και ως ΖΕΠ, για πτηνά."],
       },
     ],

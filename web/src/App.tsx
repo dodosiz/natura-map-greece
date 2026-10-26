@@ -1,11 +1,12 @@
 import type { FeatureCollection, Geometry } from "geojson";
+import { DomEvent, type Path, type PathOptions } from "leaflet";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CircleMarker, GeoJSON, MapContainer, TileLayer, useMap } from "react-leaflet";
+import { CircleMarker, GeoJSON, MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { featuresAt } from "./geo";
 import { api, type Language, type RegionProps, siteName, type SiteProps, type SiteType, type Stats } from "./api";
 import InfoButton from "./InfoButton";
 
-export const COLORS: Record<SiteType, string> = { SCI: "#2b8cbe", SPA: "#e6550d", SCISPA: "#31a354" };
+export const COLORS: Record<SiteType, string> = { SCI: "#2563eb", SPA: "#d97706", SCISPA: "#059669" };
 const TYPES: SiteType[] = ["SCI", "SPA", "SCISPA"];
 const TEXT: Record<Language, {
   title: string;
@@ -31,7 +32,7 @@ const TEXT: Record<Language, {
   yourPosition: string;
 }> = {
   el: {
-    title: "Natura 2000 – Ελλάδα",
+    title: "Χάρτης Natura Ελλάδα",
     siteTypes: { SCI: "ΤΚΣ (οικότοποι & είδη)", SPA: "ΖΕΠ (πτηνά)", SCISPA: "ΤΚΣ + ΖΕΠ" },
     sites: "τόποι",
     network: "δίκτυο",
@@ -54,7 +55,7 @@ const TEXT: Record<Language, {
     yourPosition: "Η θέση σας",
   },
   en: {
-    title: "Natura 2000 – Greece",
+    title: "Natura Map Greece",
     siteTypes: { SCI: "SCI (habitats & species)", SPA: "SPA (birds)", SCISPA: "SCI + SPA" },
     sites: "sites",
     network: "network",
@@ -91,6 +92,10 @@ function FlyTo({ pos }: { pos: Position | null }) {
   }, [map, lat === undefined]);
   return null;
 }
+function ClearSelection({ onClear }: { onClear: () => void }) {
+  useMapEvents({ click: onClear });
+  return null;
+}
 const LOCALE: Record<Language, string> = { el: "el-GR", en: "en-US" };
 const fmt = (n: number, language: Language, d = 0) =>
   n.toLocaleString(LOCALE[language], { maximumFractionDigits: d });
@@ -111,6 +116,19 @@ export default function App() {
   const [locStatus, setLocStatus] = useState<LocStatus>("idle");
   const [pos, setPos] = useState<Position | null>(null);
   const watchId = useRef<number | null>(null);
+  const selected = useRef<{ layer: Path; style: PathOptions } | null>(null);
+  const clearSelection = () => {
+    if (selected.current) selected.current.layer.setStyle(selected.current.style);
+    selected.current = null;
+  };
+  const select = (layer: Path) => {
+    if (selected.current?.layer === layer) return;
+    clearSelection();
+    const { color, weight, fillColor, fillOpacity } = layer.options;
+    selected.current = { layer, style: { color, weight, fillColor, fillOpacity } };
+    layer.setStyle({ color: "#dc2626", weight: 4, fillOpacity: 0.15 });
+    layer.bringToFront();
+  };
 
   const stopLocating = () => {
     if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current);
@@ -152,10 +170,10 @@ export default function App() {
   );
   const natura =
     inNatura === null
-      ? { cls: "unknown", icon: "⚪", label: text.unknown }
+      ? { cls: "unknown", label: text.unknown }
       : inNatura
-        ? { cls: "inside", icon: "🟢", label: text.inside }
-        : { cls: "outside", icon: "🔴", label: text.outside };
+        ? { cls: "inside", label: text.inside }
+        : { cls: "outside", label: text.outside };
   useEffect(() => {
     document.documentElement.lang = language;
     document.title = text.title;
@@ -186,22 +204,23 @@ export default function App() {
     <div className="app">
       <aside className="sidebar">
         <div className="title">
+          <img className="logo" src="/favicon.svg" alt="" width="40" height="40" />
           <h1>{text.title}</h1>
+          <div className="lang-toggle" role="group" aria-label={text.language}>
+            {(["el", "en"] as Language[]).map((l) => (
+              <button key={l} type="button" aria-pressed={language === l} onClick={() => setLanguage(l)}>
+                {l === "el" ? "ΕΛ" : "EN"}
+              </button>
+            ))}
+          </div>
           <InfoButton language={language} />
         </div>
-        <label className="language-select">
-          {text.language}
-          <select aria-label={text.language} value={language} onChange={(e) => setLanguage(e.target.value === "en" ? "en" : "el")}>
-            <option value="el">Ελληνικά</option>
-            <option value="en">English</option>
-          </select>
-        </label>
         {error && <div className="error">{text.apiError} {error}</div>}
         {stats && cov && (
           <div className="stats">
-            <div><b>{fmt(stats.total_sites, language)}</b> {text.sites}</div>
-            <div><b>{fmt(cov.network_km2, language)}</b> km² {text.network}</div>
-            <div><b>{fmt(cov.network_land_pct, language, 1)}%</b> {text.land}</div>
+            <div className="stat"><b>{fmt(stats.total_sites, language)}</b> <span>{text.sites}</span></div>
+            <div className="stat"><b>{fmt(cov.network_km2, language)}</b> <span>km² {text.network}</span></div>
+            <div className="stat"><b>{fmt(cov.network_land_pct, language, 1)}%</b> <span>{text.land}</span></div>
           </div>
         )}
         {lastSync && (
@@ -218,11 +237,11 @@ export default function App() {
             {locStatus === "idle" || locStatus === "denied" || locStatus === "unavailable" ? text.locate : text.stopLocate}
           </button>
           <div className={`natura-status ${natura.cls}`} role="status">
-            <span aria-hidden="true">{natura.icon}</span> {locStatus === "locating" ? text.locating : natura.label}
+            <span className="dot" aria-hidden="true" /> {locStatus === "locating" ? text.locating : natura.label}
           </div>
           {locStatus === "denied" && <div className="loc-note">{text.denied}</div>}
           {locStatus === "unavailable" && <div className="loc-note">{text.unavailable}</div>}
-          <div className="loc-note">{text.privacy}</div>
+          <div className="loc-note" title={text.privacy}>{text.privacy}</div>
         </div>
 
         <div className="types">
@@ -239,11 +258,13 @@ export default function App() {
           ))}
           <label>
             <input type="checkbox" checked={showRegions} onChange={(e) => setShowRegions(e.target.checked)} />
+            <span className="swatch regions" />
             {text.regionCoverage}
           </label>
         </div>
         <footer className="attribution">
-          {text.dataCredit}{" "}
+          <details>
+          <summary>{text.dataCredit}</summary>
           ©{" "}
           <a href="http://geoportal.ypen.gr/geonetwork/srv/eng/catalog.search#/metadata/c140c8d2-3820-4847-bfdc-1d6668d66325" target="_blank" rel="noopener noreferrer">
             {language === "el" ? "Υπουργείο Περιβάλλοντος & Ενέργειας (ΥΠΕΝ)" : "Ministry of Environment & Energy (YPEN)"}
@@ -253,7 +274,8 @@ export default function App() {
           <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener noreferrer">CC0</a>) ·{" "}
           <a href="https://www.geoboundaries.org/" target="_blank" rel="noopener noreferrer">geoBoundaries</a> (
           <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>).
-        </footer>
+                    </details>
+                  </footer>
       </aside>
 
       <MapContainer center={[39, 23.5]} zoom={6} className="map">
@@ -274,6 +296,7 @@ export default function App() {
             onEachFeature={(f, layer) => {
               const p = f.properties as RegionProps;
               layer.bindTooltip(`${p.name}: ${fmt(p.protected_pct, language, 1)}% ${language === "el" ? "προστατευόμενη έκταση" : "protected"}`, { sticky: true });
+              layer.on("click", (e) => { DomEvent.stopPropagation(e); select(layer as Path); });
             }}
           />
         )}
@@ -283,7 +306,7 @@ export default function App() {
           data={filtered}
           style={(f) => {
             const c = COLORS[(f?.properties as SiteProps).sitetype];
-            return { color: c, weight: 1, fillColor: c, fillOpacity: 0.35 };
+            return { color: c, weight: 1.2, fillColor: c, fillOpacity: 0.4 };
           }}
           onEachFeature={(f, layer) => {
             const p = f.properties as SiteProps;
@@ -291,8 +314,10 @@ export default function App() {
               `${siteName(p, language)} (${p.sitecode})<br/>${text.siteTypes[p.sitetype]} · ${fmt(p.area_km2, language, 1)} km²`,
               { sticky: true },
             );
+            layer.on("click", (e) => { DomEvent.stopPropagation(e); select(layer as Path); });
           }}
         />
+        <ClearSelection onClear={clearSelection} />
         <FlyTo pos={pos} />
         {pos && (
           <CircleMarker

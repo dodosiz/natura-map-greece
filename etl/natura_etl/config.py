@@ -32,3 +32,21 @@ REGION_SIMPLIFY_M = 300
 COORD_PRECISION = 1e-5
 
 MIN_EXPECTED_SITES = 400
+
+# geoBoundaries only provides transliterated Greek names; official Greek/English names per region.
+REGION_NAMES: dict[str, dict[str, str]] = {
+    "Agion Oros": {"el": "Άγιον Όρος", "en": "Mount Athos"},
+    "Anatolikis Makedonias kai Thr*": {"el": "Ανατολική Μακεδονία και Θράκη", "en": "East Macedonia and Thrace"},
+    "Attikis": {"el": "Αττική", "en": "Attica"},
+    "Dytikis Elladas": {"el": "Δυτική Ελλάδα", "en": "Western Greece"},
+    "Dytikis Makedonias": {"el": "Δυτική Μακεδονία", "en": "Western Macedonia"},
+    "Ionion Nison": {"el": "Ιόνια Νησιά", "en": "Ionian Islands"},
+    "Ipeiroy": {"el": "Ήπειρος", "en": "Epirus"},
+    "Kentrikis Makedonias": {"el": "Κεντρική Μακεδονία", "en": "Central Macedonia"},
+    "Kritis": {"el": "Κρήτη", "en": "Crete"},
+    "Notioy Aigaioy": {"el": "Νότιο Αιγαίο", "en": "South Aegean"},
+    "Peloponnisoy": {"el": "Πελοπόννησος", "en": "Peloponnese"},
+    "Stereas Elladas": {"el": "Στερεά Ελλάδα", "en": "Central Greece"},
+    "Thessalias": {"el": "Θεσσαλία", "en": "Thessaly"},
+    "Voreioy Aigaioy": {"el": "Βόρειο Αιγαίο", "en": "North Aegean"},
+}

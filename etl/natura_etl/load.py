@@ -37,6 +37,8 @@ CREATE INDEX IF NOT EXISTS idx_site_regions_region ON site_regions (region);
 
 CREATE TABLE IF NOT EXISTS regions (
     name TEXT PRIMARY KEY,
+    name_el TEXT,
+    name_en TEXT,
     area_km2 REAL NOT NULL,
     protected_km2 REAL NOT NULL,
     protected_pct REAL NOT NULL,
@@ -73,6 +75,10 @@ def load(db_path: Path, sites: list[dict], links: list[dict], regions: list[dict
     try:
         con.execute("PRAGMA journal_mode = WAL")
         con.executescript(SCHEMA)
+        existing = {r[1] for r in con.execute("PRAGMA table_info(regions)")}
+        for col in ("name_el", "name_en"):
+            if col not in existing:
+                con.execute(f"ALTER TABLE regions ADD COLUMN {col} TEXT")
         with con:  # single transaction: full refresh
             for table in ("site_regions", "sites", "regions", "stats"):
                 con.execute(f"DELETE FROM {table}")
@@ -82,8 +88,9 @@ def load(db_path: Path, sites: list[dict], links: list[dict], regions: list[dict
                 "INSERT INTO site_regions (sitecode, region, overlap_km2) VALUES (:sitecode, :region, :overlap_km2)",
                 links)
             con.executemany(
-                "INSERT INTO regions (name, area_km2, protected_km2, protected_pct, n_sites, geometry) "
-                "VALUES (:name, :area_km2, :protected_km2, :protected_pct, :n_sites, :geometry)", regions)
+                "INSERT INTO regions (name, name_el, name_en, area_km2, protected_km2, protected_pct, n_sites, geometry) "
+                "VALUES (:name, :name_el, :name_en, :area_km2, :protected_km2, :protected_pct, :n_sites, :geometry)",
+                regions)
             con.executemany("INSERT INTO stats (key, value) VALUES (?, ?)", stats.items())
             con.execute(
                 "INSERT INTO etl_runs (finished_at, source, n_sites, n_named, n_regions) VALUES (?, ?, ?, ?, ?)",

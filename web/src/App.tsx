@@ -96,6 +96,7 @@ function ClearSelection({ onClear }: { onClear: () => void }) {
   useMapEvents({ click: onClear });
   return null;
 }
+const regionName = (p: RegionProps, language: Language) => (language === "el" ? p.name_el : p.name_en) ?? p.name;
 const LOCALE: Record<Language, string> = { el: "el-GR", en: "en-US" };
 const fmt = (n: number, language: Language, d = 0) =>
   n.toLocaleString(LOCALE[language], { maximumFractionDigits: d });
@@ -175,6 +176,8 @@ export default function App() {
         ? { cls: "inside", label: text.inside }
         : { cls: "outside", label: text.outside };
   useEffect(() => {
+    // Layers are rebuilt on language change, so the old highlighted layer is gone.
+    selected.current = null;
     document.documentElement.lang = language;
     document.title = text.title;
   }, [language, text.title]);
@@ -285,7 +288,7 @@ export default function App() {
         />
         {showRegions && regions && (
           <GeoJSON
-            key="regions"
+            key={`regions:${language}`}
             data={regions}
             style={(f) => ({
               color: "#555",
@@ -295,14 +298,14 @@ export default function App() {
             })}
             onEachFeature={(f, layer) => {
               const p = f.properties as RegionProps;
-              layer.bindTooltip(`${p.name}: ${fmt(p.protected_pct, language, 1)}% ${language === "el" ? "προστατευόμενη έκταση" : "protected"}`, { sticky: true });
+              layer.bindTooltip(`${regionName(p, language)}: ${fmt(p.protected_pct, language, 1)}% ${language === "el" ? "προστατευόμενη έκταση" : "protected"}`, { sticky: true });
               layer.on("click", (e) => { DomEvent.stopPropagation(e); select(layer as Path); });
             }}
           />
         )}
         {/* react-leaflet's GeoJSON ignores data changes, so the key must change when data loads or filters change */}
         <GeoJSON
-          key={`${sites ? "loaded" : "empty"}:${TYPES.filter((t) => visible[t]).join()}`}
+          key={`${sites ? "loaded" : "empty"}:${language}:${TYPES.filter((t) => visible[t]).join()}`}
           data={filtered}
           style={(f) => {
             const c = COLORS[(f?.properties as SiteProps).sitetype];

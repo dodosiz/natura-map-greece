@@ -72,7 +72,7 @@ Tests: `cd etl; pytest`.
 
 - `sites` – `sitecode` (PK), `objectid`, `sitetype`, `name_en`, `name_el`, `wikidata`, `wikidata_ambiguous`, `perimeter_km`, `area_km2`, `land_share_pct`, `region_primary`, `centroid_lon/lat`, `min/max_lon/lat` (bbox), `geom_simplified`, `geom_full` (GeoJSON text, WGS84)
 - `site_regions` – `sitecode`, `region`, `overlap_km2` (a site can span several regions)
-- `regions` – `name` (PK), `area_km2`, `protected_km2`, `protected_pct`, `n_sites`, `geometry` (simplified GeoJSON)
+- `regions` – `name` (PK), `name_el`, `name_en`, `area_km2`, `protected_km2`, `protected_pct`, `n_sites`, `geometry` (simplified GeoJSON)
 - `stats` – key/value: `greece_land_km2`, `network_km2`, `network_land_km2`, `network_land_pct`, `sci_km2`, `spa_km2`, `sci_spa_overlap_km2`, `sum_of_site_areas_km2`
 - `etl_runs` – one row per run (time, source, counts)
 

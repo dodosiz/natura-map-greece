@@ -27,7 +27,8 @@ def client(tmp_path, monkeypatch):
             " min_lon, min_lat, max_lon, max_lat, geom_simplified, geom_full) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (code, typ, name, area, region, x + .5, 38.5, x, 38, x + 1, 39, _poly(x), _poly(x)))
         con.execute("INSERT INTO site_regions VALUES (?,?,?)", (code, region, area))
-    con.execute("INSERT INTO regions VALUES ('R1', 100, 15, 15, 2, ?)", (_poly(22),))
+    con.execute("INSERT INTO regions (name, name_el, name_en, area_km2, protected_km2, protected_pct, n_sites, geometry) "
+                "VALUES ('R1', 'Περιφέρεια 1', 'Region 1', 100, 15, 15, 2, ?)", (_poly(22),))
     con.execute("INSERT INTO stats VALUES ('network_km2', 65)")
     con.execute("INSERT INTO etl_runs (finished_at, source, n_sites, n_named, n_regions) VALUES ('now','s',3,2,1)")
     con.commit()

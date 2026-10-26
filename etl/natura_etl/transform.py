@@ -126,8 +126,13 @@ def build_regions(regions, geoms, links):
     for name, geom in regions:
         area_km2 = geom.area / 1e6
         protected_km2 = all_union.intersection(geom).area / 1e6
+        names = config.REGION_NAMES.get(name) or config.REGION_NAMES.get(name.strip())
+        if names is None:
+            log.warning("no translation for region %r; using source name", name)
         out.append({
             "name": name,
+            "name_el": names["el"] if names else name,
+            "name_en": names["en"] if names else name,
             "area_km2": area_km2,
             "protected_km2": protected_km2,
             "protected_pct": protected_km2 / area_km2 * 100 if area_km2 else 0.0,

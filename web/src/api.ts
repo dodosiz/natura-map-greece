@@ -18,7 +18,8 @@ export interface SiteProps {
 
 export interface RegionProps {
   name: string;
-  area_km2: number;
+  name_el: string | null;
+  name_en: string | null;
   protected_km2: number;
   protected_pct: number;
   n_sites: number;

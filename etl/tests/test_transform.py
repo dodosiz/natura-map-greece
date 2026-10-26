@@ -49,7 +49,10 @@ def test_build_regions_coverage():
     rows, stats = transform.build_regions([("R", region)], geoms, links)
     assert rows[0]["protected_pct"] == pytest.approx(50)
     assert stats["network_land_pct"] == pytest.approx(50)
+    assert rows[0]["name_en"] == "R" and rows[0]["name_el"] == "R"  # untranslated falls back to source name
 
+    rows, _ = transform.build_regions([("Kritis", region)], geoms, links)
+    assert (rows[0]["name_el"], rows[0]["name_en"]) == ("Κρήτη", "Crete")
 
 def test_validate_rejects_small_download():
     with pytest.raises(transform.ValidationError):

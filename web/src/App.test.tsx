@@ -6,10 +6,15 @@ import { useState } from "react";
 vi.mock("react-leaflet", () => ({
   MapContainer: ({ children }: any) => <div>{children}</div>,
   TileLayer: () => null,
-  // Like the real component, only the data given at mount time is used; later prop changes are ignored.
-  GeoJSON: ({ data }: any) => {
+  // Like the real component, only the data and callbacks given at mount time are used; later prop changes are ignored.
+  GeoJSON: ({ data, onEachFeature }: any) => {
     const [mounted] = useState(data);
-    return <div data-testid="geojson" data-count={mounted.features.length} />;
+    const [tooltips] = useState(() => {
+      const out: string[] = [];
+      for (const f of mounted.features) onEachFeature?.(f, { bindTooltip: (t: string) => out.push(t), on: () => {} });
+      return out;
+    });
+    return <div data-testid="geojson" data-count={mounted.features.length} data-tooltips={tooltips.join("|")} />;
   },
   CircleMarker: ({ center }: any) => <div data-testid="marker" data-center={center.join(",")} />,
   useMapEvents: () => null,
@@ -21,7 +26,7 @@ vi.mock("./api", async (orig) => {
   const site = (code: string, sitetype: string) => ({
     type: "Feature",
     geometry: { type: "Polygon", coordinates: [[[-1, -1], [1, -1], [1, 1], [-1, 1], [-1, -1]]] },
-    properties: { sitecode: code, sitetype },
+    properties: { sitecode: code, sitetype, name_el: `Ελ-${code}`, name_en: `En-${code}`, area_km2: 1 },
   });
   return {
     ...actual,
@@ -30,7 +35,10 @@ vi.mock("./api", async (orig) => {
         type: "FeatureCollection",
         features: [site("A", "SCI"), site("B", "SPA"), site("C", "SPA")],
       }),
-      regions: vi.fn().mockResolvedValue({ type: "FeatureCollection", features: [] }),
+      regions: vi.fn().mockResolvedValue({
+        type: "FeatureCollection",
+        features: [{ type: "Feature", geometry: site("R", "SCI").geometry, properties: { name: "Kritis", name_el: "Κρήτη", name_en: "Crete", protected_pct: 20 } }],
+      }),
       stats: vi.fn().mockResolvedValue({
         total_sites: 3,
         by_type: {
@@ -130,5 +138,20 @@ describe("App", () => {
     expect(screen.getByLabelText(/Natura 2000 area by region/)).toBeInTheDocument();
     expect(document.documentElement.lang).toBe("en");
     expect(screen.getByRole("dialog")).toHaveTextContent("Understanding the map");
+  });
+
+  it("translates site and region tooltips when the language changes", async () => {
+    render(<App />);
+    await waitFor(() => expect(siteLayer()).toHaveAttribute("data-count", "3"));
+    fireEvent.click(screen.getByLabelText(/Ποσοστό έκτασης Natura 2000 ανά περιφέρεια/));
+    const tooltips = (i: number) => screen.getAllByTestId("geojson")[i].getAttribute("data-tooltips");
+    expect(tooltips(0)).toContain("Κρήτη: 20% προστατευόμενη έκταση");
+    expect(tooltips(1)).toContain("Ελ-A (A)");
+
+    fireEvent.click(screen.getByRole("button", { name: "EN" }));
+    await waitFor(() => expect(tooltips(1)).toContain("En-A (A)"));
+    expect(tooltips(0)).toContain("Crete: 20% protected");
+    expect(tooltips(1)).toContain("SCI (habitats & species)");
+    expect(tooltips(1)).not.toContain("Ελ-");
   });
 });

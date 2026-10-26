@@ -101,9 +101,9 @@ export default function App() {
             }}
           />
         )}
-        {/* key forces a re-render when the visible set changes */}
+        {/* react-leaflet's GeoJSON ignores data changes, so the key must change when data loads or filters change */}
         <GeoJSON
-          key={TYPES.filter((t) => visible[t]).join()}
+          key={`${sites ? "loaded" : "empty"}:${TYPES.filter((t) => visible[t]).join()}`}
           data={filtered}
           style={(f) => {
             const c = COLORS[(f?.properties as SiteProps).sitetype];

@@ -9,6 +9,7 @@ from . import config
 
 log = logging.getLogger(__name__)
 
+# Finds Natura 2000 items with GR-prefixed codes and optional English/Greek labels.
 SPARQL = """
 SELECT ?code ?item ?en ?el WHERE {
   ?item wdt:P3425 ?code . FILTER(STRSTARTS(?code, "GR"))

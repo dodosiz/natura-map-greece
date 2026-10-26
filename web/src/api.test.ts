@@ -4,10 +4,15 @@ import { api, siteName } from "./api";
 afterEach(() => vi.unstubAllGlobals());
 
 describe("siteName", () => {
-  it("prefers English, then Greek, then code", () => {
-    expect(siteName({ name_en: "En", name_el: "El", sitecode: "X" })).toBe("En");
-    expect(siteName({ name_en: null, name_el: "El", sitecode: "X" })).toBe("El");
+  it("prefers Greek by default and falls back to English, then the code", () => {
+    expect(siteName({ name_en: "En", name_el: "El", sitecode: "X" })).toBe("El");
+    expect(siteName({ name_en: "En", name_el: null, sitecode: "X" })).toBe("En");
     expect(siteName({ name_en: null, name_el: null, sitecode: "X" })).toBe("X");
+  });
+
+  it("uses English when requested and falls back to Greek", () => {
+    expect(siteName({ name_en: "En", name_el: "El", sitecode: "X" }, "en")).toBe("En");
+    expect(siteName({ name_en: null, name_el: "El", sitecode: "X" }, "en")).toBe("El");
   });
 });
 

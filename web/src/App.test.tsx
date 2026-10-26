@@ -54,12 +54,14 @@ describe("App", () => {
     render(<App />);
     await waitFor(() => expect(siteLayer()).toHaveAttribute("data-count", "3"));
     expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Natura 2000 – Ελλάδα" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Γλώσσα")).toHaveValue("el");
   });
 
   it("filters sites when a type checkbox is toggled", async () => {
     render(<App />);
     await waitFor(() => expect(siteLayer()).toHaveAttribute("data-count", "3"));
-    fireEvent.click(screen.getByLabelText(/SPA \(birds\)/));
+    fireEvent.click(screen.getByLabelText(/ΖΕΠ \(πτηνά\)/));
     await waitFor(() => expect(siteLayer()).toHaveAttribute("data-count", "1"));
   });
 
@@ -67,8 +69,19 @@ describe("App", () => {
     render(<App />);
     await waitFor(() => expect(siteLayer()).toHaveAttribute("data-count", "3"));
     expect(screen.getAllByTestId("geojson")).toHaveLength(1);
-    fireEvent.click(screen.getByLabelText(/Region coverage/));
+    fireEvent.click(screen.getByLabelText(/Κάλυψη περιφερειών/));
     expect(screen.getAllByTestId("geojson")).toHaveLength(2);
   });
-});
 
+  it("switches the interface to English", async () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Τι σημαίνουν αυτοί οι όροι;" }));
+    expect(screen.getByRole("dialog")).toHaveTextContent("Κατανόηση του χάρτη");
+    fireEvent.change(screen.getByLabelText("Γλώσσα"), { target: { value: "en" } });
+    expect(await screen.findByRole("heading", { name: "Natura 2000 – Greece" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Language")).toHaveValue("en");
+    expect(screen.getByLabelText(/Region coverage/)).toBeInTheDocument();
+    expect(document.documentElement.lang).toBe("en");
+    expect(screen.getByRole("dialog")).toHaveTextContent("Understanding the map");
+  });
+});

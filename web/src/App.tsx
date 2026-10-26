@@ -1,17 +1,48 @@
 import type { FeatureCollection, Geometry } from "geojson";
 import { useEffect, useMemo, useState } from "react";
 import { GeoJSON, MapContainer, TileLayer } from "react-leaflet";
-import { api, RegionProps, siteName, SiteProps, SiteType, Stats } from "./api";
+import { api, type Language, type RegionProps, siteName, type SiteProps, type SiteType, type Stats } from "./api";
 import InfoButton from "./InfoButton";
 
 export const COLORS: Record<SiteType, string> = { SCI: "#2b8cbe", SPA: "#e6550d", SCISPA: "#31a354" };
 const TYPES: SiteType[] = ["SCI", "SPA", "SCISPA"];
-const TYPE_LABEL: Record<SiteType, string> = {
-  SCI: "SCI (habitats)",
-  SPA: "SPA (birds)",
-  SCISPA: "SCI + SPA",
+const TEXT: Record<Language, {
+  title: string;
+  siteTypes: Record<SiteType, string>;
+  sites: string;
+  network: string;
+  land: string;
+  regionCoverage: string;
+  apiError: string;
+  dataCredit: string;
+  language: string;
+}> = {
+  el: {
+    title: "Natura 2000 – Ελλάδα",
+    siteTypes: { SCI: "ΤΚΣ (οικότοποι)", SPA: "ΖΕΠ (πτηνά)", SCISPA: "ΤΚΣ + ΖΕΠ" },
+    sites: "τόποι",
+    network: "δίκτυο",
+    land: "της χερσαίας έκτασης",
+    regionCoverage: "Κάλυψη περιφερειών (% προστατευόμενη έκταση)",
+    apiError: "Σφάλμα API:",
+    dataCredit: "Δεδομένα: © Υπουργείο Περιβάλλοντος & Ενέργειας (ΥΠΕΝ), CC BY-SA 4.0",
+    language: "Γλώσσα",
+  },
+  en: {
+    title: "Natura 2000 – Greece",
+    siteTypes: { SCI: "SCI (habitats)", SPA: "SPA (birds)", SCISPA: "SCI + SPA" },
+    sites: "sites",
+    network: "network",
+    land: "of land",
+    regionCoverage: "Region coverage (% protected)",
+    apiError: "API error:",
+    dataCredit: "Data: © Ministry of Environment & Energy (YPEN), CC BY-SA 4.0",
+    language: "Language",
+  },
 };
-const fmt = (n: number, d = 0) => n.toLocaleString("en-US", { maximumFractionDigits: d });
+const LOCALE: Record<Language, string> = { el: "el-GR", en: "en-US" };
+const fmt = (n: number, language: Language, d = 0) =>
+  n.toLocaleString(LOCALE[language], { maximumFractionDigits: d });
 
 function choropleth(pct: number) {
   return pct > 40 ? "#08519c" : pct > 30 ? "#3182bd" : pct > 20 ? "#6baed6" : pct > 12 ? "#bdd7e7" : "#eff3ff";
@@ -22,8 +53,15 @@ export default function App() {
   const [regions, setRegions] = useState<FeatureCollection<Geometry, RegionProps> | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [language, setLanguage] = useState<Language>("el");
   const [visible, setVisible] = useState<Record<SiteType, boolean>>({ SCI: true, SPA: true, SCISPA: true });
   const [showRegions, setShowRegions] = useState(false);
+  const text = TEXT[language];
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.title = text.title;
+  }, [language, text.title]);
 
   useEffect(() => {
     Promise.all([api.sitesGeoJSON(), api.regions(), api.stats()])
@@ -48,15 +86,22 @@ export default function App() {
     <div className="app">
       <aside className="sidebar">
         <div className="title">
-          <h1>Natura 2000 – Greece</h1>
-          <InfoButton />
+          <h1>{text.title}</h1>
+          <InfoButton language={language} />
         </div>
-        {error && <div className="error">API error: {error}</div>}
+        <label className="language-select">
+          {text.language}
+          <select aria-label={text.language} value={language} onChange={(e) => setLanguage(e.target.value === "en" ? "en" : "el")}>
+            <option value="el">Ελληνικά</option>
+            <option value="en">English</option>
+          </select>
+        </label>
+        {error && <div className="error">{text.apiError} {error}</div>}
         {stats && cov && (
           <div className="stats">
-            <div><b>{stats.total_sites}</b> sites</div>
-            <div><b>{fmt(cov.network_km2)}</b> km² network</div>
-            <div><b>{fmt(cov.network_land_pct, 1)}%</b> of land</div>
+            <div><b>{fmt(stats.total_sites, language)}</b> {text.sites}</div>
+            <div><b>{fmt(cov.network_km2, language)}</b> km² {text.network}</div>
+            <div><b>{fmt(cov.network_land_pct, language, 1)}%</b> {text.land}</div>
           </div>
         )}
 
@@ -69,15 +114,15 @@ export default function App() {
                 onChange={(e) => setVisible({ ...visible, [t]: e.target.checked })}
               />
               <span className="swatch" style={{ background: COLORS[t] }} />
-              {TYPE_LABEL[t]} {stats && `(${stats.by_type[t].count})`}
+              {text.siteTypes[t]} {stats && `(${fmt(stats.by_type[t].count, language)})`}
             </label>
           ))}
           <label>
             <input type="checkbox" checked={showRegions} onChange={(e) => setShowRegions(e.target.checked)} />
-            Region coverage (% protected)
+            {text.regionCoverage}
           </label>
         </div>
-        <footer>Data: © Ministry of Environment &amp; Energy (YPEN), CC BY-SA 4.0</footer>
+        <footer>{text.dataCredit}</footer>
       </aside>
 
       <MapContainer center={[39, 23.5]} zoom={6} className="map">
@@ -97,7 +142,7 @@ export default function App() {
             })}
             onEachFeature={(f, layer) => {
               const p = f.properties as RegionProps;
-              layer.bindTooltip(`${p.name}: ${p.protected_pct.toFixed(1)}% protected`, { sticky: true });
+              layer.bindTooltip(`${p.name}: ${fmt(p.protected_pct, language, 1)}% ${language === "el" ? "προστατευόμενη έκταση" : "protected"}`, { sticky: true });
             }}
           />
         )}
@@ -112,7 +157,7 @@ export default function App() {
           onEachFeature={(f, layer) => {
             const p = f.properties as SiteProps;
             layer.bindTooltip(
-              `${siteName(p)} (${p.sitecode})<br/>${TYPE_LABEL[p.sitetype]} · ${fmt(p.area_km2, 1)} km²`,
+              `${siteName(p, language)} (${p.sitecode})<br/>${text.siteTypes[p.sitetype]} · ${fmt(p.area_km2, language, 1)} km²`,
               { sticky: true },
             );
           }}

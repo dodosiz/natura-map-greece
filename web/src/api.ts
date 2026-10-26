@@ -31,6 +31,8 @@ export interface Stats {
   last_etl_run: { finished_at: string } | null;
 }
 
+export type Language = "el" | "en";
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`);
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}: ${path}`);
@@ -43,6 +45,5 @@ export const api = {
   stats: () => get<Stats>("/stats"),
 };
 
-export const siteName = (p: Pick<SiteProps, "name_en" | "name_el" | "sitecode">) =>
-  p.name_en ?? p.name_el ?? p.sitecode;
-
+export const siteName = (p: Pick<SiteProps, "name_en" | "name_el" | "sitecode">, language: Language = "el") =>
+  (language === "el" ? p.name_el ?? p.name_en : p.name_en ?? p.name_el) ?? p.sitecode;

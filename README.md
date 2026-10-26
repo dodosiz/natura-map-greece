@@ -114,11 +114,11 @@ Location is personal data. The location feature is opt-in: nothing is requested 
 
 ## Data attribution and licensing
 
-The site and API display data from several sources; each source retains its own license:
+The original project code in this repository is licensed under the MIT License; see [LICENSE](LICENSE). That license does not apply to third-party data, libraries, or services. Each data source retains its own license:
 
 - Natura 2000 site polygons: © Ministry of Environment and Energy (ΥΠΕΝ), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The project reprojects and simplifies geometries and computes areas, perimeters, and coverage statistics from them. Those adaptations must be credited as modified; the source license applies to adaptations of this dataset.
 - Site labels: [Wikidata property P3425](https://www.wikidata.org/wiki/Property:P3425); structured data is available under [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 - Administrative boundaries: [geoBoundaries](https://www.geoboundaries.org/), CC BY 4.0. Its web-use guidance asks for prominent linked credit.
 - Base map tiles: © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), [ODbL](https://opendatacommons.org/licenses/odbl/1-0/). The site uses the standard OSM tile service; follow its [tile usage policy](https://operations.osmfoundation.org/policies/tiles/).
 
-These are data credits, not a blanket license for the website's code or for data from other sources. The map is for orientation only; check official boundaries and decisions with the competent Greek authorities.
+Third-party libraries and applications retain their own licenses and terms; see the dependency manifests and lockfiles for the packages used by this project. The MIT License does not grant rights to those dependencies or external services. The map is for orientation only; check official boundaries and decisions with the competent Greek authorities.

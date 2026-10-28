@@ -7,6 +7,7 @@ import { featuresAt } from "./geo";
 import { api, type Language, type RegionProps, siteName, type SiteProps, type SiteType, type Stats } from "./api";
 import InfoButton from "./InfoButton";
 import { initialLanguage, pageHref } from "./lang";
+import { updatePageMetadata } from "./seo";
 
 export const COLORS: Record<SiteType, string> = { SCI: "#2563eb", SPA: "#d97706", SCISPA: "#059669" };
 const TYPES: SiteType[] = ["SCI", "SPA", "SCISPA"];
@@ -21,6 +22,10 @@ const TEXT: Record<Language, {
   dataCredit: string;
   dataModified: string;
   language: string;
+  seoTitle: string;
+  seoDescription: string;
+  aboutHeading: string;
+  about: string;
   lastSync: string;
   locate: string;
   stopLocate: string;
@@ -44,6 +49,10 @@ const TEXT: Record<Language, {
     dataCredit: "Πηγές δεδομένων:",
     dataModified: "αναπροβολή, απλοποίηση και παράγωγα μεγέθη",
     language: "Γλώσσα",
+    seoTitle: "Περιοχές Natura 2000 στην Ελλάδα | Χάρτης Natura Ελλάδα",
+    seoDescription: "Διαδραστικός χάρτης των περιοχών Natura 2000 στην Ελλάδα. Εξερευνήστε τόπους κοινοτικής σημασίας, ζώνες προστασίας πτηνών και κάλυψη ανά περιφέρεια.",
+    aboutHeading: "Το δίκτυο Natura 2000 στην Ελλάδα",
+    about: "Εξερευνήστε τις προστατευόμενες περιοχές της Ελλάδας, δείτε τόπους κοινοτικής σημασίας (ΤΚΣ), ζώνες ειδικής προστασίας (ΖΕΠ) και την κάλυψη Natura 2000 ανά περιφέρεια.",
     lastSync: "Τελευταίος συγχρονισμός δεδομένων:",
     locate: "Πού βρίσκομαι;",
     stopLocate: "Διακοπή εντοπισμού",
@@ -67,6 +76,10 @@ const TEXT: Record<Language, {
     dataCredit: "Data sources:",
     dataModified: "reprojected, simplified, derived measurements",
     language: "Language",
+    seoTitle: "Natura 2000 Sites in Greece | Natura Map Greece",
+    seoDescription: "Explore an interactive map of Natura 2000 protected sites in Greece, including habitat and bird protection sites and coverage by region.",
+    aboutHeading: "Natura 2000 in Greece",
+    about: "Explore Greece's protected sites, including Sites of Community Importance (SCI), Special Protection Areas (SPA), and Natura 2000 coverage by region.",
     lastSync: "Data last synced:",
     locate: "Where am I?",
     stopLocate: "Stop locating",
@@ -181,9 +194,13 @@ export default function App() {
   useEffect(() => {
     // Layers are rebuilt on language change, so the old highlighted layer is gone.
     selected.current = null;
-    document.documentElement.lang = language;
-    document.title = text.title;
-  }, [language, text.title]);
+    updatePageMetadata({
+      title: text.seoTitle,
+      description: text.seoDescription,
+      language,
+      path: "/",
+    });
+  }, [language, text.seoDescription, text.seoTitle]);
 
   useEffect(() => {
     Promise.all([api.sitesGeoJSON(), api.regions(), api.stats()])
@@ -207,7 +224,7 @@ export default function App() {
   const lastSync = syncDate && !isNaN(syncDate.getTime()) ? syncDate : null;
 
   return (
-    <div className="app">
+    <main className="app">
       <aside className={`sidebar${collapsed ? " collapsed" : ""}`}>
         <button
           type="button"
@@ -232,6 +249,10 @@ export default function App() {
           </div>
           <InfoButton language={language} />
         </div>
+        <section className="intro" aria-labelledby="intro-heading">
+          <h2 id="intro-heading">{text.aboutHeading}</h2>
+          <p>{text.about}</p>
+        </section>
         {error && <div className="error">{text.apiError} {error}</div>}
         {stats && cov && (
           <div className="stats">
@@ -358,6 +379,6 @@ export default function App() {
           />
         )}
       </MapContainer>
-    </div>
+    </main>
   );
 }

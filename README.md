@@ -207,6 +207,8 @@ React + TypeScript + Vite, map with Leaflet via `react-leaflet`.
 - An **info (i) button** next to the title explaining Natura 2000, SCI, SPA and what they mean for construction and other activities (text in `src/InfoButton.tsx`; sources: European Commission Natura 2000, Habitats and Birds Directive pages)
 - A **"Where am I?" button** that asks the browser for permission to use the visitor's location (Geolocation API, only after the click). With permission, the position is shown on the map and a status line shows 🟢 in a Natura 2000 area, 🔴 not in one, or ⚪ no current location data (before consent, if denied, or unavailable). The point-in-polygon check (`src/geo.ts`) uses the simplified site geometries, so it is approximate near borders and has no legal force.
 
+Search metadata and localized page descriptions are provided for Greek and English, with a crawler-readable HTML fallback, `public/robots.txt`, and `public/sitemap.xml`.
+
 Configuration: the API base URL is `/api` (proxied in dev). For a separate host set `VITE_API_URL=https://host/api` at build time and add the frontend origin to `CORS_ORIGINS`.
 
 `npm run build` type-checks and builds to `web/dist` (serve with any static server; `npm run preview` to try it, which needs `VITE_API_URL` pointing to the API).

@@ -1,8 +1,20 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { initialLanguage, pageHref } from "./lang";
+import { updatePageMetadata } from "./seo";
 
 type LegalPageKind = "privacy" | "imprint";
 type Language = "el" | "en";
+
+const SEO_DESCRIPTIONS: Record<Language, Record<LegalPageKind, string>> = {
+  el: {
+    privacy: "Μάθετε πώς ο ιστότοπος Χάρτης Natura Ελλάδα διαχειρίζεται τα δεδομένα, τα αιτήματα χάρτη και την προαιρετική χρήση τοποθεσίας.",
+    imprint: "Στοιχεία εκδότη και υπευθύνου για τον ιστότοπο Χάρτης Natura Ελλάδα.",
+  },
+  en: {
+    privacy: "Learn how Natura Map Greece handles website data, map requests, and optional location use.",
+    imprint: "Publisher and operator details for the Natura Map Greece website.",
+  },
+};
 
 const LEGAL_COPY: Record<
   Language,
@@ -383,9 +395,13 @@ export default function LegalPage({ page }: { page: LegalPageKind }) {
   const copy = LEGAL_COPY[language][page];
 
   useEffect(() => {
-    document.documentElement.lang = language;
-    document.title = `${copy.title} — ${language === "el" ? "Χάρτης Natura Ελλάδα" : "Natura Map Greece"}`;
-  }, [copy.title, language]);
+    updatePageMetadata({
+      title: `${copy.title} — ${language === "el" ? "Χάρτης Natura Ελλάδα" : "Natura Map Greece"}`,
+      description: SEO_DESCRIPTIONS[language][page],
+      language,
+      path: `/${page}`,
+    });
+  }, [copy.title, language, page]);
 
   return (
     <main className="legal-page">

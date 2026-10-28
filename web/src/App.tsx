@@ -1,6 +1,7 @@
 import type { FeatureCollection, Geometry } from "geojson";
 import { DomEvent, type Path, type PathOptions } from "leaflet";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
+import LayerIcon from "./LayerIcons";
 import { CircleMarker, GeoJSON, MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { featuresAt } from "./geo";
 import { api, type Language, type RegionProps, siteName, type SiteProps, type SiteType, type Stats } from "./api";
@@ -110,6 +111,7 @@ export default function App() {
   const [regions, setRegions] = useState<FeatureCollection<Geometry, RegionProps> | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
   const [language, setLanguage] = useState<Language>("el");
   const [visible, setVisible] = useState<Record<SiteType, boolean>>({ SCI: true, SPA: true, SCISPA: true });
   const [showRegions, setShowRegions] = useState(false);
@@ -205,7 +207,18 @@ export default function App() {
 
   return (
     <div className="app">
-      <aside className="sidebar">
+      <aside className={`sidebar${collapsed ? " collapsed" : ""}`}>
+        <button
+          type="button"
+          className="panel-toggle"
+          aria-expanded={!collapsed}
+          aria-label={collapsed ? "Show panel" : "Hide panel"}
+          onClick={() => setCollapsed((c) => !c)}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
         <div className="title">
           <img className="logo" src="/favicon.svg" alt="" width="40" height="40" />
           <h1>{text.title}</h1>
@@ -249,21 +262,31 @@ export default function App() {
 
         <div className="types">
           {TYPES.map((t) => (
-            <label key={t}>
-              <input
-                type="checkbox"
-                checked={visible[t]}
-                onChange={(e) => setVisible({ ...visible, [t]: e.target.checked })}
-              />
-              <span className="swatch" style={{ background: COLORS[t] }} />
-              {text.siteTypes[t]} {stats && `(${fmt(stats.by_type[t].count, language)})`}
-            </label>
+            <button
+              type="button"
+              key={t}
+              className="tile"
+              aria-pressed={visible[t]}
+              aria-label={text.siteTypes[t]}
+              style={{ "--tile-color": COLORS[t] } as CSSProperties}
+              onClick={() => setVisible({ ...visible, [t]: !visible[t] })}
+            >
+              <LayerIcon layer={t} />
+              <span className="tile-label">{text.siteTypes[t]}</span>
+              {stats && <span className="tile-count">{fmt(stats.by_type[t].count, language)}</span>}
+            </button>
           ))}
-          <label>
-            <input type="checkbox" checked={showRegions} onChange={(e) => setShowRegions(e.target.checked)} />
-            <span className="swatch regions" />
-            {text.regionCoverage}
-          </label>
+          <button
+            type="button"
+            className="tile"
+            aria-pressed={showRegions}
+            aria-label={text.regionCoverage}
+            style={{ "--tile-color": "#08519c" } as CSSProperties}
+            onClick={() => setShowRegions(!showRegions)}
+          >
+            <LayerIcon layer="regions" />
+            <span className="tile-label">{text.regionCoverage}</span>
+          </button>
         </div>
         <footer className="attribution">
           <details>

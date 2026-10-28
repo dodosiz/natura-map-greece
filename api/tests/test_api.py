@@ -58,6 +58,20 @@ def test_regions_and_stats(client):
     assert s["total_sites"] == 3 and s["by_type"]["SPA"]["count"] == 1 and s["last_etl_run"]["n_sites"] == 3
 
 
+def test_legal_pages_serve_frontend_entrypoint(client, tmp_path, monkeypatch):
+    from app import main
+
+    frontend = tmp_path / "static"
+    frontend.mkdir()
+    (frontend / "index.html").write_text("<html>legal app</html>", encoding="utf-8")
+    monkeypatch.setattr(main, "frontend_dir", frontend)
+
+    for path in ("/privacy", "/imprint"):
+        response = client.get(path)
+        assert response.status_code == 200
+        assert response.text == "<html>legal app</html>"
+
+
 def test_missing_db_gives_503(tmp_path, monkeypatch):
     monkeypatch.setenv("NATURA_DB_PATH", str(tmp_path / "absent.db"))
     from app.main import app

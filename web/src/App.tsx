@@ -300,8 +300,12 @@ export default function App() {
           <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener noreferrer">CC0</a>) ·{" "}
           <a href="https://www.geoboundaries.org/" target="_blank" rel="noopener noreferrer">geoBoundaries</a> (
           <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>).
-                    </details>
-                  </footer>
+          </details>
+          <nav className="legal-links" aria-label={language === "el" ? "Νομικές πληροφορίες" : "Legal information"}>
+            <a href="/privacy">{language === "el" ? "Πολιτική απορρήτου" : "Privacy policy"}</a>
+            <a href="/imprint">{language === "el" ? "Στοιχεία εκδότη" : "Imprint"}</a>
+          </nav>
+        </footer>
       </aside>
 
       <MapContainer center={[39, 23.5]} zoom={6} className="map">

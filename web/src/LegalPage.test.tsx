@@ -16,6 +16,15 @@ describe("LegalPage", () => {
     expect(document.documentElement.lang).toBe("en");
   });
 
+  it("keeps the selected language when navigating", () => {
+    window.history.pushState({}, "", "/privacy?lang=en");
+    render(<LegalPage page="privacy" />);
+    expect(screen.getByRole("heading", { name: "Privacy policy" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Imprint" })).toHaveAttribute("href", "/imprint?lang=en");
+    expect(screen.getByRole("link", { name: "Back to map" })).toHaveAttribute("href", "/?lang=en");
+    window.history.pushState({}, "", "/");
+  });
+
   it("shows the supplied operator details and links to the privacy policy", () => {
     const { container } = render(<LegalPage page="imprint" />);
 

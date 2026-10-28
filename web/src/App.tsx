@@ -6,6 +6,7 @@ import { CircleMarker, GeoJSON, MapContainer, TileLayer, useMap, useMapEvents } 
 import { featuresAt } from "./geo";
 import { api, type Language, type RegionProps, siteName, type SiteProps, type SiteType, type Stats } from "./api";
 import InfoButton from "./InfoButton";
+import { initialLanguage, pageHref } from "./lang";
 
 export const COLORS: Record<SiteType, string> = { SCI: "#2563eb", SPA: "#d97706", SCISPA: "#059669" };
 const TYPES: SiteType[] = ["SCI", "SPA", "SCISPA"];
@@ -112,7 +113,7 @@ export default function App() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(false);
-  const [language, setLanguage] = useState<Language>("el");
+  const [language, setLanguage] = useState<Language>(initialLanguage);
   const [visible, setVisible] = useState<Record<SiteType, boolean>>({ SCI: true, SPA: true, SCISPA: true });
   const [showRegions, setShowRegions] = useState(false);
   const text = TEXT[language];
@@ -302,8 +303,8 @@ export default function App() {
           <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>).
           </details>
           <nav className="legal-links" aria-label={language === "el" ? "Νομικές πληροφορίες" : "Legal information"}>
-            <a href="/privacy">{language === "el" ? "Πολιτική απορρήτου" : "Privacy policy"}</a>
-            <a href="/imprint">{language === "el" ? "Στοιχεία εκδότη" : "Imprint"}</a>
+            <a href={pageHref("/privacy", language)}>{language === "el" ? "Πολιτική απορρήτου" : "Privacy policy"}</a>
+            <a href={pageHref("/imprint", language)}>{language === "el" ? "Στοιχεία εκδότη" : "Imprint"}</a>
           </nav>
         </footer>
       </aside>

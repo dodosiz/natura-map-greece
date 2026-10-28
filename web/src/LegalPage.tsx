@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { initialLanguage, pageHref } from "./lang";
 
 type LegalPageKind = "privacy" | "imprint";
 type Language = "el" | "en";
@@ -378,7 +379,7 @@ const LEGAL_COPY: Record<
 };
 
 export default function LegalPage({ page }: { page: LegalPageKind }) {
-  const [language, setLanguage] = useState<Language>("el");
+  const [language, setLanguage] = useState<Language>(initialLanguage);
   const copy = LEGAL_COPY[language][page];
 
   useEffect(() => {
@@ -389,7 +390,7 @@ export default function LegalPage({ page }: { page: LegalPageKind }) {
   return (
     <main className="legal-page">
       <header className="legal-header">
-        <a className="legal-brand" href="/">
+        <a className="legal-brand" href={pageHref("/", language)}>
           {language === "el" ? "Χάρτης Natura Ελλάδα" : "Natura Map Greece"}
         </a>
         <div className="lang-toggle" role="group" aria-label={language === "el" ? "Γλώσσα" : "Language"}>
@@ -401,10 +402,10 @@ export default function LegalPage({ page }: { page: LegalPageKind }) {
         </div>
       </header>
       <nav className="legal-nav" aria-label={language === "el" ? "Νομικές πληροφορίες" : "Legal information"}>
-        <a href="/privacy" aria-current={page === "privacy" ? "page" : undefined}>
+        <a href={pageHref("/privacy", language)} aria-current={page === "privacy" ? "page" : undefined}>
           {language === "el" ? "Πολιτική απορρήτου" : "Privacy policy"}
         </a>
-        <a href="/imprint" aria-current={page === "imprint" ? "page" : undefined}>
+        <a href={pageHref("/imprint", language)} aria-current={page === "imprint" ? "page" : undefined}>
           {language === "el" ? "Στοιχεία εκδότη" : "Imprint"}
         </a>
       </nav>
@@ -418,7 +419,7 @@ export default function LegalPage({ page }: { page: LegalPageKind }) {
         ))}
       </article>
       <footer className="legal-footer">
-        <a href="/">{language === "el" ? "Επιστροφή στον χάρτη" : "Back to map"}</a>
+        <a href={pageHref("/", language)}>{language === "el" ? "Επιστροφή στον χάρτη" : "Back to map"}</a>
       </footer>
     </main>
   );

@@ -41,6 +41,109 @@ npm run dev
 
 The Vite dev server proxies `/api` to `http://localhost:8000` (override with `VITE_PROXY_TARGET`).
 
+## Deploy to Google Cloud Run
+
+The GitHub Actions workflow in `.github/workflows/deploy-cloud-run.yml` deploys the app as one public Cloud Run service. FastAPI serves both the built frontend and `/api/*` from the same origin. On each push to `main`, the workflow regenerates `data/natura.db`, builds and pushes a container image to Artifact Registry, and deploys a new Cloud Run revision. The database is read-only at runtime and bundled into that image; do not rely on container filesystem writes for persistence. The service scales to zero when idle and is capped at three instances to limit unexpected scale-out; adjust `--max=3` in the workflow if your traffic requirements change.
+
+### Cost and traffic controls
+
+For a small public map, Cloud Run's request-based pricing and scale-to-zero can keep compute costs low, often within the monthly free tier. The current published free tier includes 2 million requests, 180,000 vCPU-seconds, and 360,000 GiB-seconds per month (aggregated across projects on a billing account). Usage beyond that is billed. This is not a guaranteed $0 cap: outbound internet data transfer, Artifact Registry storage, and GitHub Actions usage may also cost money. Prices vary by Cloud Run region and visitors' destinations; use the [Cloud Run pricing page](https://cloud.google.com/run/pricing) and [Google Cloud pricing calculator](https://cloud.google.com/products/calculator) for your region.
+
+The map downloads three API responses when it opens. With the current bundled database and gzip responses, these are approximately 413 KiB per page load (about 0.4 GiB for 1,000 loads or 4 GiB for 10,000 loads). This is an estimate based on a local build; actual transferred bytes vary. Google Cloud charges for internet egress according to region and destination. The OpenStreetMap tile requests are made directly by each visitor's browser to the tile service, not proxied through Cloud Run, so they do not add Google Cloud egress charges. ETL source downloads happen during GitHub Actions deployments, not on visitor requests.
+
+The workflow's three-instance maximum is the low-friction cost guardrail. It limits ordinary autoscaling, but Google notes that a maximum can be exceeded briefly during spikes. You can lower the cap or set it on the service directly:
+
+```sh
+gcloud run services update YOUR_SERVICE --region=YOUR_REGION --min=0 --max=1
+```
+
+Create a monthly [Cloud Billing budget and email alerts](https://cloud.google.com/billing/docs/how-to/budgets) as an additional safeguard. Budget alerts monitor spend; they do **not** automatically stop service or cap charges.
+
+A per-IP request limiter inside the app would not provide a reliable global limit across multiple Cloud Run instances, and requests still incur some Cloud Run cost before the limiter responds. Edge rate limiting with Cloud Armor requires an external Application Load Balancer and adds cost and setup. Since this app makes no paid server-side outbound requests per visitor, the instance cap, scale-to-zero, and budget alerts are a better starting point. Consider Cloud Armor only if you later need protection from abusive traffic and its added load-balancer cost is justified.
+
+### One-time Google Cloud setup
+
+Choose a Google Cloud project and region, then enable the required APIs and create a Docker Artifact Registry repository:
+
+```sh
+gcloud config set project YOUR_PROJECT_ID
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com iamcredentials.googleapis.com sts.googleapis.com
+gcloud artifacts repositories create natura-map \
+  --repository-format=docker \
+  --location=YOUR_REGION
+```
+
+Create a dedicated deployer service account and a separate, permission-free runtime service account:
+
+```sh
+gcloud iam service-accounts create github-cloud-run-deployer
+gcloud iam service-accounts create natura-map-runtime
+```
+
+Create a Workload Identity Federation pool and OIDC provider for GitHub Actions. Restrict the provider to this repository's `main` branch:
+
+```sh
+gcloud iam workload-identity-pools create github-actions \
+  --location=global \
+  --display-name="GitHub Actions"
+
+gcloud iam workload-identity-pools providers create-oidc github \
+  --location=global \
+  --workload-identity-pool=github-actions \
+  --display-name="Natura map deploy" \
+  --issuer-uri=https://token.actions.githubusercontent.com \
+  --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.ref=assertion.ref" \
+  --attribute-condition="assertion.repository == 'dodosiz/natura-map-greece' && assertion.ref == 'refs/heads/main'"
+```
+
+Allow only this repository's federated identity to impersonate the deployer account. Substitute your project number and service-account email:
+
+```sh
+PROJECT_NUMBER="$(gcloud projects describe YOUR_PROJECT_ID --format='value(projectNumber)')"
+DEPLOYER="github-cloud-run-deployer@YOUR_PROJECT_ID.iam.gserviceaccount.com"
+RUNTIME="natura-map-runtime@YOUR_PROJECT_ID.iam.gserviceaccount.com"
+
+gcloud iam service-accounts add-iam-policy-binding "$DEPLOYER" \
+  --role=roles/iam.workloadIdentityUser \
+  --member="principalSet://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/github-actions/attribute.repository/dodosiz/natura-map-greece"
+```
+
+Grant the deployer permission to push to the image repository, deploy the Cloud Run service, and attach its runtime identity. These project-level Cloud Run permissions allow the workflow to make the service publicly invokable:
+
+```sh
+gcloud artifacts repositories add-iam-policy-binding natura-map \
+  --location=YOUR_REGION \
+  --member="serviceAccount:${DEPLOYER}" \
+  --role=roles/artifactregistry.writer
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+  --member="serviceAccount:${DEPLOYER}" \
+  --role=roles/run.admin
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+  --member="serviceAccount:${DEPLOYER}" \
+  --role=roles/serviceusage.serviceUsageConsumer
+gcloud iam service-accounts add-iam-policy-binding "$RUNTIME" \
+  --member="serviceAccount:${DEPLOYER}" \
+  --role=roles/iam.serviceAccountUser
+```
+
+### Configure GitHub and deploy
+
+In the repository's **Settings → Secrets and variables → Actions → Variables**, add:
+
+| Variable | Value |
+|---|---|
+| `GCP_PROJECT_ID` | Google Cloud project ID |
+| `GCP_REGION` | Cloud Run and Artifact Registry region, e.g. `europe-west1` |
+| `GCP_ARTIFACT_REGISTRY_REPOSITORY` | Artifact Registry repository name, e.g. `natura-map` |
+| `CLOUD_RUN_SERVICE` | Cloud Run service name, e.g. `natura-map` |
+| `GCP_WIF_PROVIDER` | Full provider resource name, e.g. `projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-actions/providers/github` |
+| `GCP_WIF_SERVICE_ACCOUNT` | Deployer service-account email |
+| `GCP_RUNTIME_SERVICE_ACCOUNT` | Runtime service-account email |
+
+No service-account key or other GitHub secret is needed. Push or merge to `main` to deploy. The first run creates the service; subsequent runs publish a new image and revision. The build downloads source datasets to regenerate the database, so upstream sources must be reachable by the GitHub-hosted runner.
+
+After the workflow succeeds, open the service URL from its deployment summary and check that the map loads. You can also check `https://YOUR_SERVICE_URL/api/stats`. Each deployment refreshes the bundled dataset; no separate database migration or volume is used.
+
 ## 1. ETL (`etl/`)
 
 `python -m natura_etl [--db PATH] [--use-cache] [-v]`

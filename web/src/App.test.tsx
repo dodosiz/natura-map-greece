@@ -11,8 +11,9 @@ const mapMock = vi.hoisted(() => {
 });
 
 vi.mock("react-leaflet", () => ({
-  MapContainer: ({ children }: any) => <div>{children}</div>,
-  TileLayer: () => null,
+  MapContainer: ({ children, attributionControl }: any) => <div data-testid="map-container" data-attribution-control={String(attributionControl)}>{children}</div>,
+  AttributionControl: ({ prefix }: any) => <div data-testid="map-attribution-control" data-prefix={String(prefix)} />,
+  TileLayer: ({ attribution }: any) => <div data-testid="tile-attribution" data-attribution={attribution} />,
   // Like the real component, only the data and callbacks given at mount time are used; later prop changes are ignored.
   GeoJSON: ({ data, onEachFeature }: any) => {
     const [mounted] = useState(data);
@@ -158,6 +159,15 @@ describe("App", () => {
     expect(attribution).toHaveTextContent("αναπροβολή, απλοποίηση και παράγωγα μεγέθη");
     expect(attribution?.querySelector('a[href="https://creativecommons.org/licenses/by-sa/4.0/"]')).toBeInTheDocument();
     expect(attribution?.querySelector('a[href="https://creativecommons.org/licenses/by/4.0/"]')).toBeInTheDocument();
+  });
+
+  it("keeps OpenStreetMap attribution without the Leaflet prefix", () => {
+    render(<App />);
+    expect(screen.getByTestId("map-attribution-control")).toHaveAttribute("data-prefix", "false");
+    expect(screen.getByTestId("tile-attribution").getAttribute("data-attribution")).toContain("OpenStreetMap contributors");
+    expect(screen.getByTestId("tile-attribution").getAttribute("data-attribution")).toContain("https://www.openstreetmap.org/copyright");
+    expect(screen.getByTestId("tile-attribution").getAttribute("data-attribution")).toContain("https://opendatacommons.org/licenses/odbl/1-0/");
+    expect(screen.getByTestId("map-container")).toHaveAttribute("data-attribution-control", "false");
   });
 
   it("structures the sidebar: layers group, collapsed about/privacy disclosures, sync in footer", async () => {

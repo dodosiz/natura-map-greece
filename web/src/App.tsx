@@ -3,7 +3,7 @@ import { DomEvent, geoJSON, type Layer, type LatLngBounds, type Path, type PathO
 import { createPortal } from "react-dom";
 import { type CSSProperties, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import LayerIcon from "./LayerIcons";
-import { Circle, CircleMarker, GeoJSON, MapContainer, Pane, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { AttributionControl, Circle, CircleMarker, GeoJSON, MapContainer, Pane, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { featuresAt } from "./geo";
 import { MIN_QUERY, searchSites } from "./search";
 import { api, type Language, type RegionProps, siteName, type SiteProps, type SiteType, type Stats } from "./api";
@@ -606,7 +606,8 @@ export default function App() {
       {status.sites === "loading" && (
         <div className="map-chip" role="status" aria-live="polite">{text.loadingSites}</div>
       )}
-      <MapContainer center={INITIAL_CENTER} zoom={INITIAL_ZOOM} className="map">
+      <MapContainer center={INITIAL_CENTER} zoom={INITIAL_ZOOM} className="map" attributionControl={false}>
+        <AttributionControl prefix={false} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (<a href="https://opendatacommons.org/licenses/odbl/1-0/">ODbL</a>)'
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"

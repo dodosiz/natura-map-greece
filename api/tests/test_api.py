@@ -52,6 +52,17 @@ def test_removed_endpoints_are_gone(client):
     assert client.get("/api/sites/GR1").status_code == 404
 
 
+def test_www_redirects_to_canonical_host_and_preserves_url(client):
+    response = client.get(
+        "/privacy?lang=en",
+        headers={"host": "www.natura-map.gr"},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 301
+    assert response.headers["location"] == "https://natura-map.gr/privacy?lang=en"
+
+
 def test_regions_and_stats(client):
     assert client.get("/api/regions").json()["features"][0]["properties"]["protected_pct"] == 15
     s = client.get("/api/stats").json()

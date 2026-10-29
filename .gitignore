@@ -10,6 +10,3 @@ data/
 *.db-wal
 *.db-shm
 .env
-
-# temp cahnge
-CUSTOM_DOMAIN_TEMP.md

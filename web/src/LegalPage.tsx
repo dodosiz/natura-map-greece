@@ -206,6 +206,17 @@ const LEGAL_COPY: Record<
             </p>
           ),
         },
+        {
+          heading: "Φωτογραφία",
+          body: (
+            <p>
+              Φωτογραφία του{" "}
+              <a href="https://unsplash.com/@v2osk?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">v2osk</a>{" "}
+              στο{" "}
+              <a href="https://unsplash.com/photos/foggy-mountain-summit-1Z2niiBPg5A?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>.
+            </p>
+          ),
+        },
       ],
     },
   },
@@ -382,6 +393,17 @@ const LEGAL_COPY: Record<
               Data sources and licences are shown in the map attribution. Rights in third-party
               data, map tiles, software, and other content remain with their respective
               rightsholders.
+            </p>
+          ),
+        },
+        {
+          heading: "Photo credit",
+          body: (
+            <p>
+              Photo by{" "}
+              <a href="https://unsplash.com/@v2osk?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">v2osk</a>{" "}
+              on{" "}
+              <a href="https://unsplash.com/photos/foggy-mountain-summit-1Z2niiBPg5A?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>.
             </p>
           ),
         },

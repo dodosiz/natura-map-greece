@@ -28,7 +28,7 @@ const LEGAL_COPY: Record<
           heading: "Υπεύθυνος επεξεργασίας",
           body: (
             <p>
-              Υπεύθυνος επεξεργασίας είναι ο Theodosios Asvestopoulos, Pratinou 12, 11634 Αθήνα,
+              Υπεύθυνος επεξεργασίας είναι ο Θεοδόσιος Ασβεστόπουλος, Πρατίνου 12, 11634 Αθήνα,
               Ελλάδα. Για ερωτήματα σχετικά με τα προσωπικά δεδομένα:{" "}
               <a href="mailto:t.v.asvestopoulos@gmail.com">t.v.asvestopoulos@gmail.com</a>.
             </p>
@@ -171,9 +171,9 @@ const LEGAL_COPY: Record<
           heading: "Υπεύθυνος λειτουργίας",
           body: (
             <address>
-              Theodosios Asvestopoulos
+              Θεοδόσιος Ασβεστόπουλος
               <br />
-              Pratinou 12
+              Πρατίνου 12
               <br />
               11634 Αθήνα, Ελλάδα
               <br />

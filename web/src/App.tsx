@@ -1,4 +1,4 @@
-import type { FeatureCollection, Geometry } from "geojson";
+import type { Feature, FeatureCollection, Geometry } from "geojson";
 import { DomEvent, type Path, type PathOptions } from "leaflet";
 import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import LayerIcon from "./LayerIcons";
@@ -119,6 +119,18 @@ const fmt = (n: number, language: Language, d = 0) =>
 function choropleth(pct: number) {
   return pct > 40 ? "#08519c" : pct > 30 ? "#3182bd" : pct > 20 ? "#6baed6" : pct > 12 ? "#bdd7e7" : "#eff3ff";
 }
+
+// Stable references: react-leaflet re-applies `style` when its identity changes, which would erase the selection highlight on every location update.
+const regionStyle = (f?: Feature<Geometry, any>): PathOptions => ({
+  color: "#555",
+  weight: 1,
+  fillColor: choropleth((f?.properties as RegionProps).protected_pct),
+  fillOpacity: 0.6,
+});
+const siteStyle = (f?: Feature<Geometry, any>): PathOptions => {
+  const c = COLORS[(f?.properties as SiteProps).sitetype];
+  return { color: c, weight: 1.2, fillColor: c, fillOpacity: 0.4 };
+};
 
 export default function App() {
   const [sites, setSites] = useState<FeatureCollection<Geometry, SiteProps> | null>(null);
@@ -339,12 +351,7 @@ export default function App() {
           <GeoJSON
             key={`regions:${language}`}
             data={regions}
-            style={(f) => ({
-              color: "#555",
-              weight: 1,
-              fillColor: choropleth((f?.properties as RegionProps).protected_pct),
-              fillOpacity: 0.6,
-            })}
+            style={regionStyle}
             onEachFeature={(f, layer) => {
               const p = f.properties as RegionProps;
               layer.bindTooltip(`${regionName(p, language)}: ${fmt(p.protected_pct, language, 1)}% ${language === "el" ? "προστατευόμενη έκταση" : "protected"}`, { sticky: true });
@@ -356,10 +363,7 @@ export default function App() {
         <GeoJSON
           key={`${sites ? "loaded" : "empty"}:${language}:${TYPES.filter((t) => visible[t]).join()}`}
           data={filtered}
-          style={(f) => {
-            const c = COLORS[(f?.properties as SiteProps).sitetype];
-            return { color: c, weight: 1.2, fillColor: c, fillOpacity: 0.4 };
-          }}
+          style={siteStyle}
           onEachFeature={(f, layer) => {
             const p = f.properties as SiteProps;
             layer.bindTooltip(

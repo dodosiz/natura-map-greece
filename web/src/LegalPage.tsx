@@ -43,7 +43,7 @@ const LEGAL_COPY: Record<
                 Δεν αποθηκεύει προσωπικά δεδομένα χρηστών στη βάση δεδομένων του.
               </p>
               <p>
-                Η υπηρεσία φιλοξενείται στο Google Cloud Run (περιοχή europe-west3, Φρανκφούρτη).
+                Η υπηρεσία φιλοξενείται στο Google Cloud Run (περιοχή europe-west1, Βέλγιο).
                 Το Cloud Run δημιουργεί αυτόματα αρχεία καταγραφής αιτημάτων στο Google Cloud
                 Logging. Ανάλογα με τις ρυθμίσεις της υπηρεσίας, αυτά μπορεί να περιλαμβάνουν τη
                 διεύθυνση IP, τη διεύθυνση URL και τον χρόνο του αιτήματος, την κατάσταση απόκρισης
@@ -232,7 +232,7 @@ const LEGAL_COPY: Record<
                 visitors' personal data in its application database.
               </p>
               <p>
-                The service is hosted on Google Cloud Run (europe-west3, Frankfurt). Cloud Run
+                The service is hosted on Google Cloud Run (europe-west1, Belgium). Cloud Run
                 automatically creates request logs in Google Cloud Logging. Depending on service
                 settings, these may include an IP address, request URL and time, response status,
                 and technical details such as browser or referrer. These logs are used to operate,

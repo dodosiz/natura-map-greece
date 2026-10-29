@@ -7,7 +7,7 @@ describe("LegalPage", () => {
     render(<LegalPage page="privacy" />);
 
     expect(screen.getByRole("heading", { name: "Πολιτική απορρήτου" })).toBeInTheDocument();
-    expect(screen.getByText(/europe-west3, Φρανκφούρτη/)).toBeInTheDocument();
+    expect(screen.getByText(/europe-west1, Βέλγιο/)).toBeInTheDocument();
     expect(screen.getByText(/δεν αποστέλλονται στον διακομιστή του ιστότοπου/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "EN" }));

@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { TEXT } from "./i18n";
 import { initialLanguage, pageHref } from "./lang";
 import { updatePageMetadata } from "./seo";
 
@@ -415,10 +416,11 @@ const LEGAL_COPY: Record<
 export default function LegalPage({ page }: { page: LegalPageKind }) {
   const [language, setLanguage] = useState<Language>(initialLanguage);
   const copy = LEGAL_COPY[language][page];
+  const text = TEXT[language];
 
   useEffect(() => {
     updatePageMetadata({
-      title: `${copy.title} — ${language === "el" ? "Χάρτης Natura Ελλάδα" : "Natura Map Greece"}`,
+      title: `${copy.title} — ${TEXT[language].title}`,
       description: SEO_DESCRIPTIONS[language][page],
       language,
       path: `/${page}`,
@@ -427,11 +429,14 @@ export default function LegalPage({ page }: { page: LegalPageKind }) {
 
   return (
     <main className="legal-page">
+      <a className="legal-back" href={pageHref("/", language)}>
+        <span aria-hidden="true">←</span> {text.backToMap}
+      </a>
       <header className="legal-header">
         <a className="legal-brand" href={pageHref("/", language)}>
-          {language === "el" ? "Χάρτης Natura Ελλάδα" : "Natura Map Greece"}
+          {text.title}
         </a>
-        <div className="lang-toggle" role="group" aria-label={language === "el" ? "Γλώσσα" : "Language"}>
+        <div className="lang-toggle" role="group" aria-label={text.language}>
           {(["el", "en"] as Language[]).map((item) => (
             <button key={item} type="button" aria-pressed={language === item} onClick={() => setLanguage(item)}>
               {item === "el" ? "ΕΛ" : "EN"}
@@ -439,26 +444,33 @@ export default function LegalPage({ page }: { page: LegalPageKind }) {
           ))}
         </div>
       </header>
-      <nav className="legal-nav" aria-label={language === "el" ? "Νομικές πληροφορίες" : "Legal information"}>
+      <nav className="legal-nav"       aria-label={text.legalNav}>
         <a href={pageHref("/privacy", language)} aria-current={page === "privacy" ? "page" : undefined}>
-          {language === "el" ? "Πολιτική απορρήτου" : "Privacy policy"}
+                {text.privacyPolicy}
         </a>
         <a href={pageHref("/imprint", language)} aria-current={page === "imprint" ? "page" : undefined}>
-          {language === "el" ? "Στοιχεία εκδότη" : "Imprint"}
+                {text.imprint}
         </a>
       </nav>
       <article className="legal-content">
         <h1>{copy.title}</h1>
-        {copy.sections.map((section) => (
-          <section key={section.heading}>
-            <h2>{section.heading}</h2>
+        <nav className="legal-toc" aria-label={text.onThisPage}>
+          <p className="legal-toc-title">{text.onThisPage}</p>
+          <ol>
+            {copy.sections.map((section, i) => (
+              <li key={section.heading}>
+                <a href={`#section-${i + 1}`}>{section.heading}</a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+        {copy.sections.map((section, i) => (
+          <section key={section.heading} aria-labelledby={`section-${i + 1}`}>
+            <h2 id={`section-${i + 1}`}>{section.heading}</h2>
             {section.body}
           </section>
         ))}
       </article>
-      <footer className="legal-footer">
-        <a href={pageHref("/", language)}>{language === "el" ? "Επιστροφή στον χάρτη" : "Back to map"}</a>
-      </footer>
     </main>
   );
 }

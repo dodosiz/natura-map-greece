@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Language, SiteType } from "./api";
 
@@ -122,16 +122,56 @@ const CONTENT: Record<Language, {
 export default function InfoButton({ language }: { language: Language }) {
   const [open, setOpen] = useState(false);
   const content = CONTENT[language];
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const trigger = triggerRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    modalRef.current?.querySelector<HTMLElement>(".close")?.focus();
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setOpen(false);
+        return;
+      }
+      if (e.key !== "Tab" || !modalRef.current) return;
+      const focusable = Array.from(modalRef.current.querySelectorAll<HTMLElement>("a[href], button:not([disabled])"));
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (!modalRef.current.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      } else if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      trigger?.focus();
+    };
+  }, [open]);
+
   return (
     <>
-      <button className="info-btn" onClick={() => setOpen(true)} aria-label={content.infoLabel} title={content.infoLabel}>
+      <button ref={triggerRef} className="info-btn" onClick={() => setOpen(true)} aria-label={content.infoLabel} title={content.infoLabel}>
         i
       </button>
       {open && createPortal(
         <div className="modal-backdrop" onClick={() => setOpen(false)}>
-          <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+          <div ref={modalRef} className="modal" role="dialog" aria-modal="true" aria-labelledby="info-dialog-title" onClick={(e) => e.stopPropagation()}>
             <button className="close" onClick={() => setOpen(false)} aria-label={content.closeLabel}>×</button>
-            <h2>{content.dialogTitle}</h2>
+            <h2 id="info-dialog-title">{content.dialogTitle}</h2>
             {content.terms.map((t) => (
               <section key={t.type}>
                 <h3>

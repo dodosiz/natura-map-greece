@@ -57,12 +57,12 @@ const ICONS: Record<LayerKey, JSX.Element> = {
   // Regional coverage: choropleth patches
   regions: (
     <svg {...frame}>
-      <rect width="56" height="56" fill="#eff3ff" />
-      <path d="M4 10 L24 4 L30 20 L14 28 L4 22Z" fill="#6baed6" stroke="#fff" strokeWidth="1.5" />
-      <path d="M24 4 L48 8 L52 24 L30 20Z" fill="#08519c" stroke="#fff" strokeWidth="1.5" />
-      <path d="M14 28 L30 20 L52 24 L44 40 L22 38Z" fill="#3182bd" stroke="#fff" strokeWidth="1.5" />
-      <path d="M4 22 L14 28 L22 38 L12 50 L4 42Z" fill="#bdd7e7" stroke="#fff" strokeWidth="1.5" />
-      <path d="M22 38 L44 40 L38 52 L12 50Z" fill="#9ecae1" stroke="#fff" strokeWidth="1.5" />
+      <rect width="56" height="56" fill="#feebe2" />
+      <path d="M4 10 L24 4 L30 20 L14 28 L4 22Z" fill="#f768a1" stroke="#fff" strokeWidth="1.5" />
+      <path d="M24 4 L48 8 L52 24 L30 20Z" fill="#7a0177" stroke="#fff" strokeWidth="1.5" />
+      <path d="M14 28 L30 20 L52 24 L44 40 L22 38Z" fill="#c51b8a" stroke="#fff" strokeWidth="1.5" />
+      <path d="M4 22 L14 28 L22 38 L12 50 L4 42Z" fill="#fbb4b9" stroke="#fff" strokeWidth="1.5" />
+      <path d="M22 38 L44 40 L38 52 L12 50Z" fill="#fbb4b9" stroke="#fff" strokeWidth="1.5" />
     </svg>
   ),
 };

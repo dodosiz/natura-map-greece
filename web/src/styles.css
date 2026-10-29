@@ -126,8 +126,11 @@ a { color: var(--accent); text-underline-offset: 2px; }
 @media (max-width: 760px) {
   .sidebar { top: auto; left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 42vh; padding: 14px; gap: 12px; }
   .leaflet-top.leaflet-left { top: 8px; right: 0; }
-  .sidebar { transition: transform 0.25s ease; }
-  .sidebar.collapsed { transform: translateY(calc(100% - 38px)); overflow: hidden; }
+  .sidebar.collapsed { overflow: hidden; gap: 4px; padding-bottom: 10px; }
+  .sidebar.collapsed > :not(.panel-toggle):not(.title) { display: none; }
+  .sidebar.collapsed .title .logo { width: 28px; height: 28px; }
+  .sidebar.collapsed .title h1 { font-size: 14px; }
+  .sidebar.collapsed .title .info-btn { display: none; }
   .panel-toggle {
     display: flex; align-items: center; justify-content: center; align-self: center;
     position: sticky; top: -6px; margin: -10px 0 -8px; width: 64px; height: 24px; padding: 0;

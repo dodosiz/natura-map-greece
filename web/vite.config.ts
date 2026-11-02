@@ -4,6 +4,10 @@ import { defineConfig } from "vitest/config";
 // In dev, /api is proxied to the FastAPI backend so no CORS setup is needed.
 export default defineConfig({
   plugins: [react()],
-  test: { environment: "jsdom", setupFiles: ["./src/test-setup.ts"] },
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/test-setup.ts"],
+    env: { VITE_GA_MEASUREMENT_ID: "G-TEST000000" },
+  },
   server: { port: 5173, proxy: { "/api": process.env.VITE_PROXY_TARGET ?? "http://localhost:8000" } },
 });

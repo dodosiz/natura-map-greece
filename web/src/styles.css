@@ -244,3 +244,16 @@ html { scroll-behavior: smooth; }
 .site-search .result-name { flex: 1; overflow-wrap: anywhere; }
 .site-search .result-code { color: var(--muted); font-size: var(--fs-xs); flex: none; }
 .site-search li.no-results { color: var(--muted); cursor: default; }
+
+.cookie-banner { position: fixed; right: var(--space-4); bottom: 40px; z-index: 10000; width: min(400px, calc(100vw - 2 * var(--space-4))); box-sizing: border-box; display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: #fff; color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow); font-size: var(--fs-sm); line-height: 1.4; }
+.cookie-banner p { margin: 0; }
+.cookie-banner a { color: var(--brand); }
+.cookie-actions { display: flex; gap: var(--space-2); justify-content: flex-end; }
+.cookie-actions button, .cookie-settings-btn { font: inherit; font-size: var(--fs-sm); font-weight: 600; padding: 6px var(--space-4); border: 1px solid var(--brand); border-radius: var(--radius-pill); background: #fff; color: var(--brand); cursor: pointer; }
+.cookie-actions button:last-child { background: var(--brand); color: #fff; }
+.cookie-actions button:focus-visible, .cookie-settings-btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+.cookie-settings-btn { display: inline-block; }
+@media (max-width: 760px) {
+  .cookie-banner { left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom)); width: auto; padding: 10px var(--space-3); gap: var(--space-2); font-size: var(--fs-xs); }
+  .cookie-actions button { padding: 5px var(--space-3); font-size: var(--fs-xs); }
+}

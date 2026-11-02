@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { TEXT } from "./i18n";
 import { initialLanguage, pageHref } from "./lang";
+import { openCookieSettings } from "./consent";
 import { updatePageMetadata } from "./seo";
 
 type LegalPageKind = "privacy" | "imprint";
@@ -100,10 +101,32 @@ const LEGAL_COPY: Record<
         {
           heading: "Cookies και παρόμοιες τεχνολογίες",
           body: (
-            <p>
-              Ο ιστότοπος δεν χρησιμοποιεί cookies, analytics, διαφημιστικούς ιχνηλάτες ή
-              αποθήκευση προτιμήσεων στο πρόγραμμα περιήγησης.
-            </p>
+            <>
+              <p>
+                Ο ιστότοπος δεν χρησιμοποιεί διαφημιστικούς ιχνηλάτες. Χρησιμοποιεί το Google
+                Analytics 4 (Google Ireland Limited / Google LLC) για στατιστικά επισκεψιμότητας
+                μόνο εφόσον δώσετε τη συγκατάθεσή σας μέσω του πλαισίου cookies. Αν την αποδεχτείτε,
+                το Google Analytics ορίζει cookies (_ga, _ga_XJGWV5X0H7, διάρκειας έως 2 ετών)
+                και συλλέγει πληροφορίες όπως σελίδες που προβάλλονται, αναγνωριστικό
+                προγράμματος περιήγησης, προσεγγιστική τοποθεσία, τύπο συσκευής και πηγή
+                επίσκεψης· η διεύθυνση IP δεν καταγράφεται στο Google Analytics 4. Πριν τη
+                συγκατάθεσή σας δεν φορτώνεται κανένα σενάριο της Google ούτε ορίζεται cookie
+                αναλυτικών. Νομική βάση είναι η συγκατάθεσή σας (άρθρο 6 παρ. 1 στοιχ. α΄ ΓΚΠΔ
+                και άρθρο 4 του ν. 3471/2006).
+              </p>
+              <p>
+                Η επιλογή σας αποθηκεύεται τοπικά στο πρόγραμμα περιήγησης (τοπικός χώρος
+                αποθήκευσης, κλειδί «analytics-consent») και είναι αναγκαία για την τήρησή της.
+                Μπορείτε να την αλλάξετε ή να ανακαλέσετε τη συγκατάθεση οποτεδήποτε, εξίσου
+                εύκολα όπως τη δώσατε. Η ανάκληση διαγράφει τα cookies του Google Analytics και
+                σταματά τη συλλογή. Η απόρριψη δεν επηρεάζει τη χρήση του ιστότοπου.
+              </p>
+              <p>
+                <button type="button" className="cookie-settings-btn" onClick={openCookieSettings}>
+                  Ρυθμίσεις cookies
+                </button>
+              </p>
+            </>
           ),
         },
         {
@@ -111,7 +134,10 @@ const LEGAL_COPY: Record<
           body: (
             <p>
               Τα τεχνικά αιτήματα και τα αρχεία καταγραφής υποβάλλονται σε επεξεργασία μέσω Google
-              Cloud Run και Google Cloud Logging. Τα αιτήματα πλακιδίων αποστέλλονται στο OSMF. Η
+              Cloud Run και Google Cloud Logging. Τα αιτήματα πλακιδίων αποστέλλονται στο OSMF. Αν
+              συναινέσετε, τα δεδομένα αναλυτικών αποστέλλονται στη Google (Google Analytics) και
+              ενδέχεται να διαβιβάζονται εκτός του Ευρωπαϊκού Οικονομικού Χώρου, μεταξύ άλλων στις
+              ΗΠΑ, με βάση τις εγγυήσεις διαβίβασης της Google. Η
               περιοχή αποθήκευσης των αρχείων Google Cloud Logging δεν έχει επαληθευτεί και οι
               υπηρεσίες τρίτων ενδέχεται να επεξεργάζονται δεδομένα εκτός του Ευρωπαϊκού
               Οικονομικού Χώρου, σύμφωνα με τους δικούς τους όρους και τις εφαρμοστέες εγγυήσεις
@@ -154,14 +180,16 @@ const LEGAL_COPY: Record<
                   Αρχή Προστασίας Δεδομένων Προσωπικού Χαρακτήρα
                 </a>
                 . Η συγκατάθεση για τη χρήση τοποθεσίας ανακαλείται οποτεδήποτε από τις ρυθμίσεις
-                του προγράμματος περιήγησης.
+                του προγράμματος περιήγησης, και η συγκατάθεση για αναλυτικά στοιχεία από το
+                «Ρυθμίσεις cookies» παραπάνω. Η ανάκληση δεν επηρεάζει τη νομιμότητα της
+                επεξεργασίας πριν από αυτήν.
               </p>
             </>
           ),
         },
         {
           heading: "Ενημερώσεις",
-          body: <p>Τελευταία ενημέρωση: 28 Οκτωβρίου 2026.</p>,
+          body: <p>Τελευταία ενημέρωση: 2 Νοεμβρίου 2026.</p>,
         },
       ],
     },
@@ -294,10 +322,30 @@ const LEGAL_COPY: Record<
         {
           heading: "Cookies and similar technologies",
           body: (
-            <p>
-              This website does not use cookies, analytics, advertising trackers, or browser
-              storage for preferences.
-            </p>
+            <>
+              <p>
+                This website does not use advertising trackers. It uses Google Analytics 4 (Google
+                Ireland Limited / Google LLC) for visitor statistics only if you consent through
+                the cookie banner. If you accept, Google Analytics sets cookies (_ga,
+                _ga_XJGWV5X0H7, lasting up to 2 years) and collects information such as pages
+                viewed, browser identifier, approximate location, device type, and traffic
+                source; IP addresses are not logged or stored by Google Analytics 4. Before you
+                consent, no Google script is loaded and no analytics cookie is set. The legal
+                basis is your consent (GDPR Article 6(1)(a) and Article 4 of Greek Law
+                3471/2006).
+              </p>
+              <p>
+                Your choice is stored locally in your browser (local storage, key
+                “analytics-consent”) and is needed to remember it. You can change it or withdraw
+                consent at any time, as easily as you gave it. Withdrawing deletes Google Analytics
+                cookies and stops collection. Rejecting does not affect your use of the website.
+              </p>
+              <p>
+                <button type="button" className="cookie-settings-btn" onClick={openCookieSettings}>
+                  Cookie settings
+                </button>
+              </p>
+            </>
           ),
         },
         {
@@ -305,7 +353,10 @@ const LEGAL_COPY: Record<
           body: (
             <p>
               Technical requests and request logs are processed through Google Cloud Run and
-              Google Cloud Logging. Tile requests are sent to OSMF. The storage location for
+              Google Cloud Logging. Tile requests are sent to OSMF. If you consent, analytics
+              data is sent to Google (Google Analytics) and may be transferred outside the
+              European Economic Area, including to the United States, under Google's transfer
+              safeguards. The storage location for
               Google Cloud Logging has not been verified, and third-party services may process
               data outside the European Economic Area under their own terms and applicable
               transfer safeguards. Further information is available in the{" "}
@@ -345,13 +396,14 @@ const LEGAL_COPY: Record<
                 Hellenic Data Protection Authority
               </a>
               . You can withdraw permission for location access at any time through your browser
-              settings.
+              settings, and withdraw analytics consent at any time via “Cookie settings” above.
+              Withdrawal does not affect the lawfulness of processing before withdrawal.
             </p>
           ),
         },
         {
           heading: "Updates",
-          body: <p>Last updated: 28 October 2026.</p>,
+          body: <p>Last updated: 2 November 2026.</p>,
         },
       ],
     },

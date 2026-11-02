@@ -24,6 +24,7 @@ jobs:
       WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
       WIF_SERVICE_ACCOUNT: ${{ vars.GCP_WIF_SERVICE_ACCOUNT }}
       RUNTIME_SERVICE_ACCOUNT: ${{ vars.GCP_RUNTIME_SERVICE_ACCOUNT }}
+      GA_MEASUREMENT_ID: ${{ vars.GA_MEASUREMENT_ID }}
     steps:
       - uses: actions/checkout@v4
 
@@ -90,7 +91,7 @@ jobs:
       - name: Build and publish image
         run: |
           image="${REGION}-docker.pkg.dev/${PROJECT_ID}/${AR_REPOSITORY}/${SERVICE_NAME}:${GITHUB_SHA}"
-          docker build --tag "$image" .
+          docker build --build-arg VITE_GA_MEASUREMENT_ID="$GA_MEASUREMENT_ID" --tag "$image" .
           docker push "$image"
           echo "IMAGE=$image" >> "$GITHUB_ENV"
 

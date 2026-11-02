@@ -52,6 +52,7 @@ export interface Messages {
   protectedShareLabel: string;
   sitesCountLabel: string;
   searchSites: string;
+  searchGoogleNewTab: string;
   noResults: string;
 }
 
@@ -108,6 +109,7 @@ export const TEXT: Record<Language, Messages> = {
     protectedShareLabel: "Προστατευόμενο",
     sitesCountLabel: "Περιοχές",
     searchSites: "Αναζήτηση περιοχών με όνομα ή κωδικό",
+    searchGoogleNewTab: "Αναζήτηση Google · ανοίγει σε νέα καρτέλα",
     noResults: "Δεν βρέθηκαν αποτελέσματα",
   },
   en: {
@@ -162,6 +164,7 @@ export const TEXT: Record<Language, Messages> = {
     protectedShareLabel: "Protected",
     sitesCountLabel: "Sites",
     searchSites: "Search sites by name or code",
+    searchGoogleNewTab: "Google search · opens in a new tab",
     noResults: "No results",
   },
 };

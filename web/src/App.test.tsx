@@ -363,6 +363,10 @@ describe("App", () => {
       />,
     );
     const card = screen.getByRole("region", { name: "Lake" });
+    const nameLink = screen.getByRole("link", { name: "Lake (Google search · opens in a new tab)" });
+    expect(nameLink).toHaveAttribute("href", "https://www.google.com/search?q=Lake");
+    expect(nameLink).toHaveAttribute("target", "_blank");
+    expect(nameLink).toHaveAttribute("rel", "noopener noreferrer");
     expect(card).toHaveTextContent("GR1");
     expect(card).toHaveTextContent("12.3 km²");
     fireEvent.click(screen.getByRole("button", { name: "Close details" }));
@@ -378,6 +382,10 @@ describe("App", () => {
       />,
     );
     const card = screen.getByRole("region", { name: "Κρήτη" });
+    expect(screen.getByRole("link", { name: "Κρήτη (Αναζήτηση Google · ανοίγει σε νέα καρτέλα)" })).toHaveAttribute(
+      "href",
+      "https://www.google.com/search?q=%CE%9A%CF%81%CE%AE%CF%84%CE%B7",
+    );
     expect(card).toHaveTextContent("20%");
     expect(card).toHaveTextContent("1.500 km²");
   });

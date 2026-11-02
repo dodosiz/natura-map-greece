@@ -161,7 +161,17 @@ export function FeatureCard({ selection, language, onClose }: { selection: Selec
   return (
     <div className="feature-card" role="region" aria-label={name} aria-live="polite">
       <div className="feature-head">
-        <h2>{name}</h2>
+        <h2>
+          <a
+            href={`https://www.google.com/search?q=${encodeURIComponent(name)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${name} (${text.searchGoogleNewTab})`}
+          >
+            {name}
+            <span className="feature-link-notice"> ({text.searchGoogleNewTab})</span>
+          </a>
+        </h2>
         <button type="button" className="close" aria-label={text.closeDetails} onClick={onClose}>×</button>
       </div>
       {selection.kind === "site" && (

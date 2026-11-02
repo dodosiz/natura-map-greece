@@ -4,7 +4,7 @@ An interactive map of Greece's Natura 2000 protected sites. The project includes
 
 ## Run locally
 
-Requirements: Python 3.10+ and Node.js 18+.
+Requirements: Python 3.10+ and Node.js 22.12+.
 
 Build the database (run from the repository root):
 
@@ -54,3 +54,7 @@ Project code is licensed under the [MIT License](LICENSE). Data and map services
 - Map tiles: © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright); follow the [tile usage policy](https://operations.osmfoundation.org/policies/tiles/).
 
 The map is for orientation only; confirm official boundaries and decisions with the relevant Greek authorities.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development checks and pull request guidance.

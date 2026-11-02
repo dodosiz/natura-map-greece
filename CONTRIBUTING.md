@@ -58,6 +58,13 @@ GitHub Actions runs all three test suites on pull requests.
 - There is no prescribed branch-naming or commit-message format. Use clear,
   descriptive names and messages.
 
+## Opening an issue
+
+Use the issue form that best matches your report: bug report, feature request,
+or Natura data correction. Include enough detail for maintainers to understand
+and verify the issue. Report suspected security vulnerabilities privately, as
+described in [SECURITY.md](SECURITY.md), rather than in a public issue.
+
 ## Pull requests
 
 Open a pull request with a concise description of the problem and the change.

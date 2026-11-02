@@ -1,0 +1,37 @@
+name: Natura data correction
+description: Report a possible issue with a Natura 2000 site or its map data.
+title: "[Data]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Natura Map Greece displays data from external sources. Please include a source or evidence for the correction when possible; maintainers will verify it before making changes.
+  - type: input
+    id: site
+    attributes:
+      label: Site name or code
+      description: Provide the Natura 2000 site name, site code, or both.
+      placeholder: For example, GR...
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What appears to be incorrect?
+      description: Describe the discrepancy and where it appears (map, site name, code, or other detail).
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Supporting source or evidence
+      description: Link to an authoritative source or explain how the issue can be verified.
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Include a map location, screenshot, or other details that may help identify the issue.
+    validations:
+      required: false
